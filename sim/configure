@@ -14145,6 +14145,24 @@ subdirs="$subdirs bpf"
   esac
 
       case "${targ}" in
+    all|pu32-*-*)
+      if test "${targ}" = "${target}"; then
+        SIM_PRIMARY_TARGET=pu32
+      fi
+            ac_config_files="$ac_config_files pu32/Makefile.sim:pu32/Makefile.in"
+
+    ac_config_commands="$ac_config_commands pu32/Makefile"
+
+    as_fn_append SIM_SUBDIRS " pu32"
+
+    ac_config_commands="$ac_config_commands depdir-pu32"
+
+
+
+      ;;
+  esac
+
+      case "${targ}" in
     all|riscv*-*-*)
       if test "${targ}" = "${target}"; then
         SIM_PRIMARY_TARGET=riscv
@@ -15884,7 +15902,10 @@ do
     "depdir-or1k") CONFIG_COMMANDS="$CONFIG_COMMANDS depdir-or1k" ;;
     "pru/Makefile.sim") CONFIG_FILES="$CONFIG_FILES pru/Makefile.sim:pru/Makefile.in" ;;
     "pru/Makefile") CONFIG_COMMANDS="$CONFIG_COMMANDS pru/Makefile" ;;
+    "pu32/Makefile.sim") CONFIG_FILES="$CONFIG_FILES pu32/Makefile.sim:pu32/Makefile.in" ;;
+    "pu32/Makefile") CONFIG_COMMANDS="$CONFIG_COMMANDS pu32/Makefile" ;;
     "depdir-pru") CONFIG_COMMANDS="$CONFIG_COMMANDS depdir-pru" ;;
+    "depdir-pu32") CONFIG_COMMANDS="$CONFIG_COMMANDS depdir-pu32" ;;
     "depdir-riscv") CONFIG_COMMANDS="$CONFIG_COMMANDS depdir-riscv" ;;
     "rl78/Makefile.sim") CONFIG_FILES="$CONFIG_FILES rl78/Makefile.sim:rl78/Makefile.in" ;;
     "rl78/Makefile") CONFIG_COMMANDS="$CONFIG_COMMANDS rl78/Makefile" ;;
@@ -17496,6 +17517,19 @@ $as_echo X"$file" |
  rm -f pru/Makesim1.tmp pru/Makesim2.tmp
  ;;
     "depdir-pru":C) $SHELL $ac_aux_dir/mkinstalldirs pru/$DEPDIR ;;
+    "pu32/Makefile":C) sed -n \
+	-e '/^## COMMON_PRE_/,/^## End COMMON_PRE_/ {
+		/^srcdir = / s:$:/pu32:
+		p
+	}' \
+	<Make-common.sim >pu32/Makesim1.tmp
+ sed -n -e '/^## COMMON_POST_/,/^## End COMMON_POST_/ p' <Make-common.sim >pu32/Makesim2.tmp
+ sed -e '/^## COMMON_PRE_/ r pu32/Makesim1.tmp' \
+	-e '/^## COMMON_POST_/ r pu32/Makesim2.tmp' \
+	<pu32/Makefile.sim >pu32/Makefile
+ rm -f pu32/Makesim1.tmp pu32/Makesim2.tmp
+ ;;
+    "depdir-pu32":C) $SHELL $ac_aux_dir/mkinstalldirs pu32/$DEPDIR ;;
     "depdir-riscv":C) $SHELL $ac_aux_dir/mkinstalldirs riscv/$DEPDIR ;;
     "rl78/Makefile":C) sed -n \
 	-e '/^## COMMON_PRE_/,/^## End COMMON_PRE_/ {
