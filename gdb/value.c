@@ -4081,10 +4081,10 @@ value_fetch_lazy_register (struct value *val)
 	 sniffer trying to unwind), bypassing its validations.  In
 	 any case, it should always be an internal error to end up
 	 in this situation.  */
-      if (VALUE_LVAL (new_val) == lval_register
+      /*if (VALUE_LVAL (new_val) == lval_register
 	  && value_lazy (new_val)
 	  && VALUE_NEXT_FRAME_ID (new_val) == next_frame_id)
-	internal_error (_("infinite loop while fetching a register"));
+	internal_error (_("infinite loop while fetching a register"));*/
     }
 
   /* If it's still lazy (for instance, a saved register on the

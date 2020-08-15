@@ -764,10 +764,14 @@ frame_id::operator== (const frame_id &r) const
   else if (stack_status != r.stack_status || stack_addr != r.stack_addr)
     /* If .stack addresses are different, the frames are different.  */
     eq = false;
+#if 0
+  // ### Disabled for now; as .code addresses could be
+  // ### different while still being for the same frame.
   else if (code_addr_p && r.code_addr_p && code_addr != r.code_addr)
     /* An invalid code addr is a wild card.  If .code addresses are
        different, the frames are different.  */
     eq = false;
+#endif
   else if (special_addr_p && r.special_addr_p
 	   && special_addr != r.special_addr)
     /* An invalid special addr is a wild card (or unused).  Otherwise

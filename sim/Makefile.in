@@ -118,7 +118,7 @@ noinst_PROGRAMS = $(am__EXEEXT_10) $(am__EXEEXT_11) $(am__EXEEXT_12) \
 	$(am__EXEEXT_31) $(am__EXEEXT_32) $(am__EXEEXT_33) \
 	$(am__EXEEXT_34) $(am__EXEEXT_35) $(am__EXEEXT_36) \
 	$(am__EXEEXT_37) $(am__EXEEXT_38) $(am__EXEEXT_39) \
-	$(am__EXEEXT_40) $(am__EXEEXT_41)
+	$(am__EXEEXT_40) $(am__EXEEXT_41) $(am__EXEEXT_42)
 EXTRA_PROGRAMS = $(am__EXEEXT_2) testsuite/common/bits-gen$(EXEEXT) \
 	testsuite/common/fpu-tst$(EXEEXT) $(am__EXEEXT_3) \
 	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
@@ -238,6 +238,7 @@ TESTS = testsuite/common/bits32m0$(EXEEXT) \
 @SIM_ENABLE_ARCH_v850_TRUE@am__append_86 = v850/run
 @SIM_ENABLE_ARCH_v850_TRUE@am__append_87 = $(v850_BUILD_OUTPUTS)
 @SIM_ENABLE_ARCH_v850_TRUE@am__append_88 = $(v850_BUILD_OUTPUTS)
+@SIM_ENABLE_ARCH_pu32_TRUE@am__append_89 = pu32/run
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../config/acx.m4 \
@@ -290,10 +291,10 @@ CONFIG_CLEAN_FILES = Make-common.sim aarch64/Makefile.sim \
 	mips/.gdbinit mn10300/Makefile.sim mn10300/.gdbinit \
 	moxie/Makefile.sim moxie/.gdbinit msp430/Makefile.sim \
 	msp430/.gdbinit or1k/Makefile.sim or1k/.gdbinit ppc/.gdbinit \
-	pru/Makefile.sim pru/.gdbinit riscv/Makefile.sim \
-	riscv/.gdbinit rl78/Makefile.sim rl78/.gdbinit rx/Makefile.sim \
-	rx/.gdbinit sh/Makefile.sim sh/.gdbinit erc32/Makefile.sim \
-	erc32/.gdbinit v850/Makefile.sim v850/.gdbinit \
+	pru/Makefile.sim pru/.gdbinit pu32/Makefile.sim pu32/.gdbinit \
+	riscv/Makefile.sim riscv/.gdbinit rl78/Makefile.sim rl78/.gdbinit \
+	rx/Makefile.sim rx/.gdbinit sh/Makefile.sim sh/.gdbinit \
+	erc32/Makefile.sim erc32/.gdbinit v850/Makefile.sim v850/.gdbinit \
 	example-synacor/Makefile.sim example-synacor/.gdbinit \
 	arch-subdir.mk .gdbinit
 CONFIG_CLEAN_VPATH_FILES =
@@ -386,6 +387,7 @@ am__EXEEXT_8 = testsuite/common/bits32m0$(EXEEXT) \
 @SIM_ENABLE_ARCH_rx_TRUE@am__EXEEXT_39 = rx/run$(EXEEXT)
 @SIM_ENABLE_ARCH_sh_TRUE@am__EXEEXT_40 = sh/run$(EXEEXT)
 @SIM_ENABLE_ARCH_v850_TRUE@am__EXEEXT_41 = v850/run$(EXEEXT)
+@SIM_ENABLE_ARCH_pu32_TRUE@am__EXEEXT_42 = pu32/run$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_aarch64_run_OBJECTS =
 aarch64_run_OBJECTS = $(am_aarch64_run_OBJECTS)
@@ -573,6 +575,10 @@ am_pru_run_OBJECTS =
 pru_run_OBJECTS = $(am_pru_run_OBJECTS)
 @SIM_ENABLE_ARCH_pru_TRUE@pru_run_DEPENDENCIES = pru/nrun.o \
 @SIM_ENABLE_ARCH_pru_TRUE@	pru/libsim.a $(am__DEPENDENCIES_1)
+am_pu32_run_OBJECTS =
+pu32_run_OBJECTS = $(am_pu32_run_OBJECTS)
+@SIM_ENABLE_ARCH_pu32_TRUE@pu32_run_DEPENDENCIES = pu32/nrun.o \
+@SIM_ENABLE_ARCH_pu32_TRUE@	pu32/libsim.a $(am__DEPENDENCIES_1)
 am_riscv_run_OBJECTS =
 riscv_run_OBJECTS = $(am_riscv_run_OBJECTS)
 @SIM_ENABLE_ARCH_riscv_TRUE@riscv_run_DEPENDENCIES = riscv/nrun.o \
@@ -675,7 +681,7 @@ SOURCES = $(common_libcommon_a_SOURCES) $(igen_libigen_a_SOURCES) \
 	$(microblaze_run_SOURCES) $(mips_run_SOURCES) \
 	$(mn10300_run_SOURCES) $(moxie_run_SOURCES) \
 	$(msp430_run_SOURCES) $(or1k_run_SOURCES) ppc/psim.c \
-	$(ppc_run_SOURCES) $(pru_run_SOURCES) $(riscv_run_SOURCES) \
+	$(ppc_run_SOURCES) $(pru_run_SOURCES) $(pu32_run_SOURCES) $(riscv_run_SOURCES) \
 	$(rl78_run_SOURCES) $(rx_run_SOURCES) $(sh_gencode_SOURCES) \
 	$(sh_run_SOURCES) testsuite/common/alu-tst.c \
 	testsuite/common/bits-gen.c testsuite/common/bits32m0.c \
@@ -974,6 +980,7 @@ AS_FOR_TARGET_MSP430 = @AS_FOR_TARGET_MSP430@
 AS_FOR_TARGET_OR1K = @AS_FOR_TARGET_OR1K@
 AS_FOR_TARGET_PPC = @AS_FOR_TARGET_PPC@
 AS_FOR_TARGET_PRU = @AS_FOR_TARGET_PRU@
+AS_FOR_TARGET_PU32 = @AS_FOR_TARGET_PU32@
 AS_FOR_TARGET_RISCV = @AS_FOR_TARGET_RISCV@
 AS_FOR_TARGET_RL78 = @AS_FOR_TARGET_RL78@
 AS_FOR_TARGET_RX = @AS_FOR_TARGET_RX@
@@ -1014,6 +1021,7 @@ CC_FOR_TARGET_MSP430 = @CC_FOR_TARGET_MSP430@
 CC_FOR_TARGET_OR1K = @CC_FOR_TARGET_OR1K@
 CC_FOR_TARGET_PPC = @CC_FOR_TARGET_PPC@
 CC_FOR_TARGET_PRU = @CC_FOR_TARGET_PRU@
+CC_FOR_TARGET_PU32 = @CC_FOR_TARGET_PU32@
 CC_FOR_TARGET_RISCV = @CC_FOR_TARGET_RISCV@
 CC_FOR_TARGET_RL78 = @CC_FOR_TARGET_RL78@
 CC_FOR_TARGET_RX = @CC_FOR_TARGET_RX@
@@ -1076,6 +1084,7 @@ LD_FOR_TARGET_MSP430 = @LD_FOR_TARGET_MSP430@
 LD_FOR_TARGET_OR1K = @LD_FOR_TARGET_OR1K@
 LD_FOR_TARGET_PPC = @LD_FOR_TARGET_PPC@
 LD_FOR_TARGET_PRU = @LD_FOR_TARGET_PRU@
+LD_FOR_TARGET_PU32 = @LD_FOR_TARGET_PU32@
 LD_FOR_TARGET_RISCV = @LD_FOR_TARGET_RISCV@
 LD_FOR_TARGET_RL78 = @LD_FOR_TARGET_RL78@
 LD_FOR_TARGET_RX = @LD_FOR_TARGET_RX@
@@ -1231,7 +1240,7 @@ MOSTLYCLEANFILES = core $(common_HW_CONFIG_H_TARGETS) $(patsubst \
 	$(am__append_35) $(am__append_40) $(am__append_44) \
 	$(am__append_48) $(am__append_52) $(am__append_57) \
 	$(am__append_66) $(am__append_71) $(am__append_76) \
-	$(am__append_85) $(am__append_88)
+	$(am__append_85) $(am__append_88) $(am__append_89)
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 AM_CPPFLAGS = $(INCGNU) -I$(srcroot)/include -I../bfd -I.. \
 	$(SIM_HW_CFLAGS) $(SIM_INLINE) -I$(srcdir)/common \
@@ -1743,6 +1752,12 @@ testsuite_common_CPPFLAGS = \
 @SIM_ENABLE_ARCH_pru_TRUE@	pru/libsim.a \
 @SIM_ENABLE_ARCH_pru_TRUE@	$(SIM_COMMON_LIBS)
 
+@SIM_ENABLE_ARCH_pu32_TRUE@pu32_run_SOURCES =
+@SIM_ENABLE_ARCH_pu32_TRUE@pu32_run_LDADD = \
+@SIM_ENABLE_ARCH_pu32_TRUE@	pu32/nrun.o \
+@SIM_ENABLE_ARCH_pu32_TRUE@	pu32/libsim.a \
+@SIM_ENABLE_ARCH_pu32_TRUE@	$(SIM_COMMON_LIBS)
+
 @SIM_ENABLE_ARCH_riscv_TRUE@riscv_run_SOURCES = 
 @SIM_ENABLE_ARCH_riscv_TRUE@riscv_run_LDADD = \
 @SIM_ENABLE_ARCH_riscv_TRUE@	riscv/nrun.o \
@@ -1813,7 +1828,7 @@ all: config.h
 .SUFFIXES: .c .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common/local.mk $(srcdir)/igen/local.mk $(srcdir)/testsuite/local.mk $(srcdir)/testsuite/common/local.mk $(srcdir)/aarch64/local.mk $(srcdir)/arm/local.mk $(srcdir)/avr/local.mk $(srcdir)/bfin/local.mk $(srcdir)/bpf/local.mk $(srcdir)/cr16/local.mk $(srcdir)/cris/local.mk $(srcdir)/d10v/local.mk $(srcdir)/erc32/local.mk $(srcdir)/example-synacor/local.mk $(srcdir)/frv/local.mk $(srcdir)/ft32/local.mk $(srcdir)/h8300/local.mk $(srcdir)/iq2000/local.mk $(srcdir)/lm32/local.mk $(srcdir)/m32c/local.mk $(srcdir)/m32r/local.mk $(srcdir)/m68hc11/local.mk $(srcdir)/mcore/local.mk $(srcdir)/microblaze/local.mk $(srcdir)/mips/local.mk $(srcdir)/mn10300/local.mk $(srcdir)/moxie/local.mk $(srcdir)/msp430/local.mk $(srcdir)/or1k/local.mk $(srcdir)/ppc/local.mk $(srcdir)/pru/local.mk $(srcdir)/riscv/local.mk $(srcdir)/rl78/local.mk $(srcdir)/rx/local.mk $(srcdir)/sh/local.mk $(srcdir)/v850/local.mk $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common/local.mk $(srcdir)/igen/local.mk $(srcdir)/testsuite/local.mk $(srcdir)/testsuite/common/local.mk $(srcdir)/aarch64/local.mk $(srcdir)/arm/local.mk $(srcdir)/avr/local.mk $(srcdir)/bfin/local.mk $(srcdir)/bpf/local.mk $(srcdir)/cr16/local.mk $(srcdir)/cris/local.mk $(srcdir)/d10v/local.mk $(srcdir)/erc32/local.mk $(srcdir)/example-synacor/local.mk $(srcdir)/frv/local.mk $(srcdir)/ft32/local.mk $(srcdir)/h8300/local.mk $(srcdir)/iq2000/local.mk $(srcdir)/lm32/local.mk $(srcdir)/m32c/local.mk $(srcdir)/m32r/local.mk $(srcdir)/m68hc11/local.mk $(srcdir)/mcore/local.mk $(srcdir)/microblaze/local.mk $(srcdir)/mips/local.mk $(srcdir)/mn10300/local.mk $(srcdir)/moxie/local.mk $(srcdir)/msp430/local.mk $(srcdir)/or1k/local.mk $(srcdir)/ppc/local.mk $(srcdir)/pru/local.mk $(srcdir)/pu32/local.mk $(srcdir)/riscv/local.mk $(srcdir)/rl78/local.mk $(srcdir)/rx/local.mk $(srcdir)/sh/local.mk $(srcdir)/v850/local.mk $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1835,7 +1850,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/common/local.mk $(srcdir)/igen/local.mk $(srcdir)/testsuite/local.mk $(srcdir)/testsuite/common/local.mk $(srcdir)/aarch64/local.mk $(srcdir)/arm/local.mk $(srcdir)/avr/local.mk $(srcdir)/bfin/local.mk $(srcdir)/bpf/local.mk $(srcdir)/cr16/local.mk $(srcdir)/cris/local.mk $(srcdir)/d10v/local.mk $(srcdir)/erc32/local.mk $(srcdir)/example-synacor/local.mk $(srcdir)/frv/local.mk $(srcdir)/ft32/local.mk $(srcdir)/h8300/local.mk $(srcdir)/iq2000/local.mk $(srcdir)/lm32/local.mk $(srcdir)/m32c/local.mk $(srcdir)/m32r/local.mk $(srcdir)/m68hc11/local.mk $(srcdir)/mcore/local.mk $(srcdir)/microblaze/local.mk $(srcdir)/mips/local.mk $(srcdir)/mn10300/local.mk $(srcdir)/moxie/local.mk $(srcdir)/msp430/local.mk $(srcdir)/or1k/local.mk $(srcdir)/ppc/local.mk $(srcdir)/pru/local.mk $(srcdir)/riscv/local.mk $(srcdir)/rl78/local.mk $(srcdir)/rx/local.mk $(srcdir)/sh/local.mk $(srcdir)/v850/local.mk $(am__empty):
+$(srcdir)/common/local.mk $(srcdir)/igen/local.mk $(srcdir)/testsuite/local.mk $(srcdir)/testsuite/common/local.mk $(srcdir)/aarch64/local.mk $(srcdir)/arm/local.mk $(srcdir)/avr/local.mk $(srcdir)/bfin/local.mk $(srcdir)/bpf/local.mk $(srcdir)/cr16/local.mk $(srcdir)/cris/local.mk $(srcdir)/d10v/local.mk $(srcdir)/erc32/local.mk $(srcdir)/example-synacor/local.mk $(srcdir)/frv/local.mk $(srcdir)/ft32/local.mk $(srcdir)/h8300/local.mk $(srcdir)/iq2000/local.mk $(srcdir)/lm32/local.mk $(srcdir)/m32c/local.mk $(srcdir)/m32r/local.mk $(srcdir)/m68hc11/local.mk $(srcdir)/mcore/local.mk $(srcdir)/microblaze/local.mk $(srcdir)/mips/local.mk $(srcdir)/mn10300/local.mk $(srcdir)/moxie/local.mk $(srcdir)/msp430/local.mk $(srcdir)/or1k/local.mk $(srcdir)/ppc/local.mk $(srcdir)/pru/local.mk $(srcdir)/pu32/local.mk $(srcdir)/riscv/local.mk $(srcdir)/rl78/local.mk $(srcdir)/rx/local.mk $(srcdir)/sh/local.mk $(srcdir)/v850/local.mk $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1959,6 +1974,10 @@ ppc/.gdbinit: $(top_builddir)/config.status $(top_srcdir)/common/gdbinit.in
 pru/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/pru/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 pru/.gdbinit: $(top_builddir)/config.status $(top_srcdir)/common/gdbinit.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+pu32/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/pu32/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+pu32/.gdbinit: $(top_builddir)/config.status $(top_srcdir)/common/gdbinit.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 riscv/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/riscv/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -2365,6 +2384,13 @@ pru/$(am__dirstamp):
 pru/run$(EXEEXT): $(pru_run_OBJECTS) $(pru_run_DEPENDENCIES) $(EXTRA_pru_run_DEPENDENCIES) pru/$(am__dirstamp)
 	@rm -f pru/run$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pru_run_OBJECTS) $(pru_run_LDADD) $(LIBS)
+pu32/$(am__dirstamp):
+	@$(MKDIR_P) pu32
+	@: > pu32/$(am__dirstamp)
+
+pu32/run$(EXEEXT): $(pu32_run_OBJECTS) $(pu32_run_DEPENDENCIES) $(EXTRA_pu32_run_DEPENDENCIES) pu32/$(am__dirstamp)
+	@rm -f pu32/run$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pu32_run_OBJECTS) $(pu32_run_LDADD) $(LIBS)
 riscv/$(am__dirstamp):
 	@$(MKDIR_P) riscv
 	@: > riscv/$(am__dirstamp)
@@ -2547,6 +2573,7 @@ clean-libtool:
 	-rm -rf or1k/.libs or1k/_libs
 	-rm -rf ppc/.libs ppc/_libs
 	-rm -rf pru/.libs pru/_libs
+	-rm -rf pu32/.libs pu32/_libs
 	-rm -rf riscv/.libs riscv/_libs
 	-rm -rf rl78/.libs rl78/_libs
 	-rm -rf rx/.libs rx/_libs
@@ -3132,6 +3159,7 @@ distclean-generic:
 	-rm -f ppc/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ppc/$(am__dirstamp)
 	-rm -f pru/$(am__dirstamp)
+	-rm -f pu32/$(am__dirstamp)
 	-rm -f riscv/$(am__dirstamp)
 	-rm -f rl78/$(am__dirstamp)
 	-rm -f rx/$(am__dirstamp)
