@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# (c) William Fonkou Tambe
+
+SCRIPT_NAME=elf
+TEMPLATE_NAME=elf
+EXTRA_EM_FILE=pu32elf
+OUTPUT_FORMAT="elf32-pu32"
+TEXT_START_ADDR=0x50000000 # Must be >= (0xE0000000/3) (Linux.TASK_SIZE/3).
+MAXPAGESIZE="CONSTANT (MAXPAGESIZE)"
+ARCH=pu32
+OTHER_BSS_SYMBOLS=". = ALIGN(4); __bss_start = . ;"
+OTHER_BSS_END_SYMBOLS="__bss_end = . ;"
+GENERATE_SHLIB_SCRIPT=yes

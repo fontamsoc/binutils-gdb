@@ -135,6 +135,7 @@ if test "${enable_sim}" != no; then
     SIM_TARGET([msp430*-*-*], [msp430])
     SIM_TARGET([or1k-*-* | or1knd-*-*], [or1k], [true])
     SIM_TARGET([pru*-*-*], [pru])
+    SIM_TARGET([pu32-*-*], [pu32])
     SIM_TARGET([riscv*-*-*], [riscv], [true])
     SIM_TARGET([rl78-*-*], [rl78])
     SIM_TARGET([rx-*-*], [rx])

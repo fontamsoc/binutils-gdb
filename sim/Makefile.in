@@ -237,7 +237,7 @@ CONFIG_CLEAN_FILES = Make-common.sim aarch64/Makefile.sim \
 	iq2000/Makefile.sim lm32/Makefile.sim m32c/Makefile.sim \
 	m32r/Makefile.sim m68hc11/Makefile.sim mcore/Makefile.sim \
 	microblaze/Makefile.sim moxie/Makefile.sim msp430/Makefile.sim \
-	pru/Makefile.sim rl78/Makefile.sim rx/Makefile.sim \
+	pru/Makefile.sim pu32/Makefile.sim rl78/Makefile.sim rx/Makefile.sim \
 	sh/Makefile.sim erc32/Makefile.sim \
 	example-synacor/Makefile.sim arch-subdir.mk
 CONFIG_CLEAN_VPATH_FILES =
@@ -989,6 +989,8 @@ moxie/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/moxie/Makefile.i
 msp430/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/msp430/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 pru/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/pru/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+pu32/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/pu32/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 rl78/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/rl78/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
