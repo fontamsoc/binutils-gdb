@@ -684,6 +684,7 @@ microblaze
 mips
 mn10300
 moxie
+pu32
 msp430
 or1k
 pru
@@ -3822,6 +3823,13 @@ subdirs="$subdirs aarch64"
 
   sim_arch=moxie
   subdirs="$subdirs moxie"
+
+
+       ;;
+   pu32-*-*)
+
+  sim_arch=pu32
+  subdirs="$subdirs pu32"
 
 
        ;;
