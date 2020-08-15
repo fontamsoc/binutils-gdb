@@ -80,7 +80,7 @@ COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(INTERNAL_CFLAGS) $(CXXFLAGS) $(COMPILE.po
 # Set this up with gcc if you have gnu ld and the loader will print out
 # line numbers for undefinded refs.
 #CC_LD = g++ -static
-CC_LD = $(CXX) $(CXX_DIALECT)
+CC_LD = $(CXX) $(CXX_DIALECT) -static
 
 # Where is the "include" directory?  Traditionally ../include or ./include
 INCLUDE_DIR = ${srcdir}/../include
@@ -183,6 +183,7 @@ SFILES = \
 	$(srcdir)/linux-nios2-low.cc \
 	$(srcdir)/linux-or1k-low.cc \
 	$(srcdir)/linux-ppc-low.cc \
+	$(srcdir)/linux-pu32-low.cc \
 	$(srcdir)/linux-riscv-low.cc \
 	$(srcdir)/linux-s390-low.cc \
 	$(srcdir)/linux-sh-low.cc \

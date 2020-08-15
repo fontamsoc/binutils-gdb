@@ -210,6 +210,7 @@ TARGET32_LIBOPCODES_CFILES = \
 	microblaze-dis.c \
 	moxie-dis.c \
 	moxie-opc.c \
+	pu32-dis.c \
 	msp430-decode.c \
 	msp430-dis.c \
 	mt-asm.c \

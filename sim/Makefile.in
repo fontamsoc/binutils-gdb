@@ -212,7 +212,8 @@ CONFIG_CLEAN_FILES = Make-common.sim aarch64/.gdbinit \
 	mcore/.gdbinit mcore/Makefile.sim microblaze/.gdbinit \
 	microblaze/Makefile.sim moxie/.gdbinit moxie/Makefile.sim \
 	msp430/.gdbinit msp430/Makefile.sim pru/.gdbinit \
-	pru/Makefile.sim rl78/.gdbinit rl78/Makefile.sim rx/.gdbinit \
+	pru/Makefile.sim pu32/.gdbinit pu32/Makefile.sim \
+	rl78/.gdbinit rl78/Makefile.sim rx/.gdbinit \
 	rx/Makefile.sim sh/.gdbinit sh/Makefile.sim erc32/.gdbinit \
 	erc32/Makefile.sim example-synacor/.gdbinit \
 	example-synacor/Makefile.sim arch-subdir.mk .gdbinit
@@ -687,6 +688,7 @@ AS_FOR_TARGET_MSP430 = @AS_FOR_TARGET_MSP430@
 AS_FOR_TARGET_OR1K = @AS_FOR_TARGET_OR1K@
 AS_FOR_TARGET_PPC = @AS_FOR_TARGET_PPC@
 AS_FOR_TARGET_PRU = @AS_FOR_TARGET_PRU@
+AS_FOR_TARGET_PU32 = @AS_FOR_TARGET_PU32@
 AS_FOR_TARGET_RISCV = @AS_FOR_TARGET_RISCV@
 AS_FOR_TARGET_RL78 = @AS_FOR_TARGET_RL78@
 AS_FOR_TARGET_RX = @AS_FOR_TARGET_RX@
@@ -729,6 +731,7 @@ CC_FOR_TARGET_MSP430 = @CC_FOR_TARGET_MSP430@
 CC_FOR_TARGET_OR1K = @CC_FOR_TARGET_OR1K@
 CC_FOR_TARGET_PPC = @CC_FOR_TARGET_PPC@
 CC_FOR_TARGET_PRU = @CC_FOR_TARGET_PRU@
+CC_FOR_TARGET_PU32 = @CC_FOR_TARGET_PU32@
 CC_FOR_TARGET_RISCV = @CC_FOR_TARGET_RISCV@
 CC_FOR_TARGET_RL78 = @CC_FOR_TARGET_RL78@
 CC_FOR_TARGET_RX = @CC_FOR_TARGET_RX@
@@ -794,6 +797,7 @@ LD_FOR_TARGET_MSP430 = @LD_FOR_TARGET_MSP430@
 LD_FOR_TARGET_OR1K = @LD_FOR_TARGET_OR1K@
 LD_FOR_TARGET_PPC = @LD_FOR_TARGET_PPC@
 LD_FOR_TARGET_PRU = @LD_FOR_TARGET_PRU@
+LD_FOR_TARGET_PU32 = @LD_FOR_TARGET_PU32@
 LD_FOR_TARGET_RISCV = @LD_FOR_TARGET_RISCV@
 LD_FOR_TARGET_RL78 = @LD_FOR_TARGET_RL78@
 LD_FOR_TARGET_RX = @LD_FOR_TARGET_RX@
@@ -1312,6 +1316,10 @@ msp430/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/msp430/Makefile
 pru/.gdbinit: $(top_builddir)/config.status $(top_srcdir)/common/gdbinit.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 pru/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/pru/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+pu32/.gdbinit: $(top_builddir)/config.status $(top_srcdir)/common/gdbinit.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+pu32/Makefile.sim: $(top_builddir)/config.status $(top_srcdir)/pu32/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 rl78/.gdbinit: $(top_builddir)/config.status $(top_srcdir)/common/gdbinit.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

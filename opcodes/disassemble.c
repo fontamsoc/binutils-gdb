@@ -70,6 +70,7 @@
 #define ARCH_mn10200
 #define ARCH_mn10300
 #define ARCH_moxie
+#define ARCH_pu32
 #define ARCH_mt
 #define ARCH_msp430
 #define ARCH_nds32
@@ -525,6 +526,11 @@ disassembler (enum bfd_architecture a,
 #ifdef ARCH_moxie
     case bfd_arch_moxie:
       disassemble = print_insn_moxie;
+      break;
+#endif
+#ifdef ARCH_pu32
+    case bfd_arch_pu32:
+      disassemble = print_insn_pu32;
       break;
 #endif
 #ifdef ARCH_iq2000

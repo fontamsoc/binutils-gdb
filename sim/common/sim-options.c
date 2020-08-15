@@ -972,7 +972,6 @@ sim_print_help (SIM_DESC sd, int is_command)
 		     "VAR=VAL         Environment variables to set.  "
 		     "Ignored if -- is used.\n");
       sim_io_printf (sd, "program args    Arguments to pass to simulated program.\n");
-      sim_io_printf (sd, "                Note: Very few simulators support this.\n");
     }
 }
 
