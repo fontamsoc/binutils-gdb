@@ -137,6 +137,7 @@
 #include "elf/mn10200.h"
 #include "elf/mn10300.h"
 #include "elf/moxie.h"
+#include "elf/pu32.h"
 #include "elf/mt.h"
 #include "elf/msp430.h"
 #include "elf/nds32.h"
@@ -1094,6 +1095,7 @@ guess_is_rela (unsigned int e_machine)
     case EM_MN10300:
     case EM_CYGNUS_MN10300:
     case EM_MOXIE:
+    case EM_PU32:
     case EM_MSP430:
     case EM_MSP430_OLD:
     case EM_MT:
@@ -1693,6 +1695,10 @@ dump_relocations (Filedata *filedata,
 
 	case EM_MOXIE:
 	  rtype = elf_moxie_reloc_type (type);
+	  break;
+
+	case EM_PU32:
+	  rtype = elf_pu32_reloc_type (type);
 	  break;
 
 	case EM_MSP430:
@@ -2954,6 +2960,7 @@ get_machine_name (unsigned e_machine)
     case EM_VISIUM:		return "CDS VISIUMcore processor";
     case EM_FT32:               return "FTDI Chip FT32";
     case EM_MOXIE:              return "Moxie";
+    case EM_PU32:               return "PU32";
     case EM_AMDGPU: 	 	return "AMD GPU";
       /* 230 (all reserved) */
       /* 240 */
@@ -14351,6 +14358,8 @@ is_32bit_abs_reloc (Filedata * filedata, unsigned int reloc_type)
       return reloc_type == 1; /* R_MN10300_32.  */
     case EM_MOXIE:
       return reloc_type == 1; /* R_MOXIE_32.  */
+    case EM_PU32:
+      return reloc_type == 3; /* R_PU32_32.  */
     case EM_MSP430_OLD:
     case EM_MSP430:
       return reloc_type == 1; /* R_MSP430_32 or R_MSP320_ABS32.  */
@@ -14893,6 +14902,7 @@ is_none_reloc (Filedata * filedata, unsigned int reloc_type)
     case EM_MIPS:    /* R_MIPS_NONE.  */
     case EM_MN10300: /* R_MN10300_NONE.  */
     case EM_MOXIE:   /* R_MOXIE_NONE.  */
+    case EM_PU32:    /* R_PU32_NONE.  */
     case EM_NIOS32:  /* R_NIOS_NONE.  */
     case EM_OR1K:    /* R_OR1K_NONE. */
     case EM_PARISC:  /* R_PARISC_NONE.  */

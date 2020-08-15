@@ -264,6 +264,11 @@ case "${gdbserver_host}" in
 			srv_linux_thread_db=yes
 			ipa_obj="${ipa_ppc_linux_regobj} linux-ppc-ipa.o"
 			;;
+  pu32*-*-*)		srv_tgtobj="${srv_linux_obj} linux-pu32-low.o"
+			srv_linux_regsets=yes
+			srv_linux_usrregs=yes
+			srv_linux_thread_db=yes
+			;;
   riscv*-*-linux*)	srv_tgtobj="arch/riscv.o nat/riscv-linux-tdesc.o"
 			srv_tgtobj="${srv_tgtobj} linux-riscv-low.o"
 			srv_tgtobj="${srv_tgtobj} ${srv_linux_obj}"

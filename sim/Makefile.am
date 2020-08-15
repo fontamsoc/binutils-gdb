@@ -168,6 +168,9 @@ endif
 if SIM_ENABLE_ARCH_pru
 include pru/local.mk
 endif
+if SIM_ENABLE_ARCH_pu32
+include pu32/local.mk
+endif
 if SIM_ENABLE_ARCH_riscv
 include riscv/local.mk
 endif
