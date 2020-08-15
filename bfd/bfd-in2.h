@@ -1687,6 +1687,8 @@ enum bfd_architecture
 #define bfd_mach_fr550         550
   bfd_arch_moxie,     /* The moxie processor.  */
 #define bfd_mach_moxie         1
+  bfd_arch_pu32,      /* The PU32 processor.  */
+#define bfd_mach_pu32          1
   bfd_arch_ft32,      /* The ft32 processor.  */
 #define bfd_mach_ft32          1
 #define bfd_mach_ft32b         2

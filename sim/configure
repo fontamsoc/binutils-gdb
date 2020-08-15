@@ -713,6 +713,11 @@ SIM_ENABLE_ARCH_pru_TRUE
 CC_FOR_TARGET_PRU
 LD_FOR_TARGET_PRU
 AS_FOR_TARGET_PRU
+SIM_ENABLE_ARCH_pu32_FALSE
+SIM_ENABLE_ARCH_pu32_TRUE
+CC_FOR_TARGET_PU32
+LD_FOR_TARGET_PU32
+AS_FOR_TARGET_PU32
 SIM_ENABLE_ARCH_ppc_FALSE
 SIM_ENABLE_ARCH_ppc_TRUE
 CC_FOR_TARGET_PPC
@@ -1107,6 +1112,9 @@ CC_FOR_TARGET_PPC
 AS_FOR_TARGET_PRU
 LD_FOR_TARGET_PRU
 CC_FOR_TARGET_PRU
+AS_FOR_TARGET_PU32
+LD_FOR_TARGET_PU32
+CC_FOR_TARGET_PU32
 AS_FOR_TARGET_RISCV
 LD_FOR_TARGET_RISCV
 CC_FOR_TARGET_RISCV
@@ -1976,6 +1984,12 @@ Some influential environment variables:
               Linker for pru tests
   CC_FOR_TARGET_PRU
               C compiler for pru tests
+  AS_FOR_TARGET_PU32
+              Assembler for pu32 tests
+  LD_FOR_TARGET_PU32
+              Linker for pu32 tests
+  CC_FOR_TARGET_PU32
+              C compiler for pu32 tests
   AS_FOR_TARGET_RISCV
               Assembler for riscv tests
   LD_FOR_TARGET_RISCV
@@ -15481,6 +15495,50 @@ else
 fi
 
 
+      sim_enable_arch_pu32=false
+  case "${targ}" in
+    all|pu32*-*-*)
+      if test "${targ}" = "${target}"; then
+        SIM_PRIMARY_TARGET=pu32
+      fi
+        as_fn_append SIM_ENABLED_ARCHES " pu32"
+      ac_config_files="$ac_config_files pu32/Makefile.sim:pu32/Makefile.in"
+
+    ac_config_commands="$ac_config_commands pu32/Makefile"
+
+    as_fn_append SIM_SUBDIRS " pu32"
+
+  ac_config_files="$ac_config_files pu32/.gdbinit:common/gdbinit.in"
+
+    ac_config_commands="$ac_config_commands depdir-pu32"
+
+
+      sim_enable_arch_pu32=true
+
+      ;;
+  esac
+
+
+
+
+  if test "$SIM_PRIMARY_TARGET" = "pu32"; then :
+      : "${AS_FOR_TARGET_PU32:=\$(AS_FOR_TARGET)}"
+    : "${LD_FOR_TARGET_PU32:=\$(LD_FOR_TARGET)}"
+    : "${CC_FOR_TARGET_PU32:=\$(CC_FOR_TARGET)}"
+
+fi
+
+as_fn_append SIM_TOOLCHAIN_VARS " AS_FOR_TARGET_PU32 LD_FOR_TARGET_PU32 CC_FOR_TARGET_PU32"
+
+   if ${sim_enable_arch_pu32}; then
+  SIM_ENABLE_ARCH_pu32_TRUE=
+  SIM_ENABLE_ARCH_pu32_FALSE='#'
+else
+  SIM_ENABLE_ARCH_pu32_TRUE='#'
+  SIM_ENABLE_ARCH_pu32_FALSE=
+fi
+
+
       sim_enable_arch_riscv=false
   case "${targ}" in
     all|riscv*-*-*)
@@ -16924,6 +16982,10 @@ if test -z "${SIM_ENABLE_ARCH_pru_TRUE}" && test -z "${SIM_ENABLE_ARCH_pru_FALSE
   as_fn_error $? "conditional \"SIM_ENABLE_ARCH_pru\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${SIM_ENABLE_ARCH_pu32_TRUE}" && test -z "${SIM_ENABLE_ARCH_pu32_FALSE}"; then
+  as_fn_error $? "conditional \"SIM_ENABLE_ARCH_pu32\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${SIM_ENABLE_ARCH_riscv_TRUE}" && test -z "${SIM_ENABLE_ARCH_riscv_FALSE}"; then
   as_fn_error $? "conditional \"SIM_ENABLE_ARCH_riscv\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -17963,6 +18025,10 @@ do
     "pru/Makefile") CONFIG_COMMANDS="$CONFIG_COMMANDS pru/Makefile" ;;
     "pru/.gdbinit") CONFIG_FILES="$CONFIG_FILES pru/.gdbinit:common/gdbinit.in" ;;
     "depdir-pru") CONFIG_COMMANDS="$CONFIG_COMMANDS depdir-pru" ;;
+    "pu32/Makefile.sim") CONFIG_FILES="$CONFIG_FILES pu32/Makefile.sim:pu32/Makefile.in" ;;
+    "pu32/Makefile") CONFIG_COMMANDS="$CONFIG_COMMANDS pu32/Makefile" ;;
+    "pu32/.gdbinit") CONFIG_FILES="$CONFIG_FILES pu32/.gdbinit:common/gdbinit.in" ;;
+    "depdir-pu32") CONFIG_COMMANDS="$CONFIG_COMMANDS depdir-pu32" ;;
     "riscv/Makefile.sim") CONFIG_FILES="$CONFIG_FILES riscv/Makefile.sim:riscv/Makefile.in" ;;
     "riscv/Makefile") CONFIG_COMMANDS="$CONFIG_COMMANDS riscv/Makefile" ;;
     "riscv/.gdbinit") CONFIG_FILES="$CONFIG_FILES riscv/.gdbinit:common/gdbinit.in" ;;
@@ -19634,6 +19700,19 @@ $as_echo X"$file" |
  rm -f pru/Makesim1.tmp pru/Makesim2.tmp
  ;;
     "depdir-pru":C) $SHELL $ac_aux_dir/mkinstalldirs pru/$DEPDIR ;;
+    "pu32/Makefile":C) sed -n \
+	-e '/^## COMMON_PRE_/,/^## End COMMON_PRE_/ {
+		/^srcdir = / s:$:/pu32:
+		p
+	}' \
+	<Make-common.sim >pu32/Makesim1.tmp
+ sed -n -e '/^## COMMON_POST_/,/^## End COMMON_POST_/ p' <Make-common.sim >pu32/Makesim2.tmp
+ sed -e '/^## COMMON_PRE_/ r pu32/Makesim1.tmp' \
+	-e '/^## COMMON_POST_/ r pu32/Makesim2.tmp' \
+	<pu32/Makefile.sim >pu32/Makefile
+ rm -f pu32/Makesim1.tmp pu32/Makesim2.tmp
+ ;;
+    "depdir-pu32":C) $SHELL $ac_aux_dir/mkinstalldirs pu32/$DEPDIR ;;
     "riscv/Makefile":C) sed -n \
 	-e '/^## COMMON_PRE_/,/^## End COMMON_PRE_/ {
 		/^srcdir = / s:$:/riscv:
