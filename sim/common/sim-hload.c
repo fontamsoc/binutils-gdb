@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Generic implementation of sim_load that works with simulators
    modeling a hardware platform. */
-
+__attribute__((weak))
 SIM_RC
 sim_load (SIM_DESC sd, const char *prog_name, struct bfd *prog_bfd, int from_tty)
 {

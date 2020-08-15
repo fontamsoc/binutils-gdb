@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# (c) William Fonkou Tambe
+
+## COMMON_PRE_CONFIG_FRAG
+
+SIM_OBJS = \
+	$(SIM_NEW_COMMON_OBJS) \
+	interp.o \
+	sim-resume.o
+
+SIM_EXTRA_CFLAGS = -Wno-declaration-after-statement
+
+## COMMON_POST_CONFIG_FRAG
