@@ -159,6 +159,15 @@ struct elf_link_hash_entry
   /* Symbol size.  */
   bfd_size_type size;
 
+  /* Used by processor specific backend to store
+     relocation offsets for a symbol tls_modid.
+     _bfd_elf_link_hash_newfunc() initializes null
+     all fields after "size" . */
+  struct dtpmod_struct {
+    bfd_vma r_off;
+    struct dtpmod_struct *next;
+  } *dtpmod;
+
   /* Symbol type (STT_NOTYPE, STT_OBJECT, etc.).  */
   unsigned int type : 8;
 
@@ -509,6 +518,7 @@ enum elf_target_id
   PPC32_ELF_DATA,
   PPC64_ELF_DATA,
   PRU_ELF_DATA,
+  PU32_ELF_DATA,
   S390_ELF_DATA,
   SH_ELF_DATA,
   SPARC_ELF_DATA,
