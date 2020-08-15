@@ -246,6 +246,11 @@ moxie-*-elf | moxie-*-moxiebox | moxie-*-rtems*)
 	gdb_target_obs="moxie-tdep.o"
 	;;
 
+pu32*-*-*)
+	# Target: PU32 machine running Linux
+	gdb_target_obs="pu32-tdep.o linux-tdep.o solib-svr4.o ${gdb_target_obs}"
+	;;
+
 h8300-*-*)
 	# Target: H8300 processor
 	gdb_target_obs="h8300-tdep.o"
@@ -770,6 +775,7 @@ moxie-*-*)		gdb_sim=moxie ;;
 msp430*-*-*)		gdb_sim=msp430 ;;
 or1k*-*-*)		gdb_sim=or1k ;;
 powerpc*-*-*)		gdb_sim=ppc ;;
+pu32*-*-*)		gdb_sim=pu32 ;;
 riscv*-*-*)		gdb_sim=riscv ;;
 rl78-*-*)		gdb_sim=rl78 ;;
 rx-*-*)			gdb_sim=rx ;;
