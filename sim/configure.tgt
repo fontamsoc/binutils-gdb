@@ -73,6 +73,8 @@ case "${target}" in
    moxie-*-*)
        SIM_ARCH(moxie)
        ;;
+   pu32-*-*)
+       SIM_ARCH(pu32)
    msp430*-*-*)
        SIM_ARCH(msp430)
        ;;

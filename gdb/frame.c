@@ -744,10 +744,14 @@ frame_id_eq (struct frame_id l, struct frame_id r)
   else if (l.stack_status != r.stack_status || l.stack_addr != r.stack_addr)
     /* If .stack addresses are different, the frames are different.  */
     eq = 0;
+#if 0
+  // ### Disabled for now; as .code addresses could be
+  // ### different while still being for the same frame.
   else if (l.code_addr_p && r.code_addr_p && l.code_addr != r.code_addr)
     /* An invalid code addr is a wild card.  If .code addresses are
        different, the frames are different.  */
     eq = 0;
+#endif
   else if (l.special_addr_p && r.special_addr_p
 	   && l.special_addr != r.special_addr)
     /* An invalid special addr is a wild card (or unused).  Otherwise

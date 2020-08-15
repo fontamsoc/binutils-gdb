@@ -232,6 +232,11 @@ moxie-*-elf | moxie-*-moxiebox | moxie-*-rtems*)
 	gdb_sim=../sim/moxie/libsim.a
 	;;
 
+pu32-*-*)
+	gdb_target_obs="pu32-tdep.o"
+	gdb_sim=../sim/pu32/libsim.a
+	;;
+
 h8300-*-*)
 	# Target: H8300 processor
 	gdb_target_obs="h8300-tdep.o"
