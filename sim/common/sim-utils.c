@@ -136,7 +136,7 @@ sim_cpu_msg_prefix (sim_cpu *cpu)
 
       for (i = 0; i < MAX_NR_PROCESSORS; ++i)
 	{
-	  int len = strlen (CPU_NAME (STATE_CPU (sd, i)));
+	  int len = strlen (CPU_NAME (STATE_CPU (CPU_STATE (cpu), i)));
 	  if (len > maxlen)
 	    maxlen = len;
 	}
