@@ -813,7 +813,6 @@ sim_print_help (SIM_DESC sd, int is_command)
     {
       sim_io_printf (sd, "\n");
       sim_io_printf (sd, "program args    Arguments to pass to simulated program.\n");
-      sim_io_printf (sd, "                Note: Very few simulators support this.\n");
     }
 }
 
