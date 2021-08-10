@@ -44,7 +44,7 @@ INLINE void st8at (uint32_t x, uint8_t v) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 1, write_transfer,
+			scpu, write_map, x, 1, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -59,8 +59,8 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes write to unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint16_t), x, ip);
+				"pu32-sim: core%u: %u bytes write to unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (unsigned)sizeof(uint16_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -107,7 +107,7 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 2, write_transfer,
+			scpu, write_map, x, 2, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -122,8 +122,8 @@ INLINE void st32at (uint32_t x, uint32_t v) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes write to unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint32_t), x, ip);
+				"pu32-sim: core%u: %u bytes write to unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint32_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -170,7 +170,7 @@ INLINE void st32at (uint32_t x, uint32_t v) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 4, write_transfer,
+			scpu, write_map, x, 4, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -219,7 +219,7 @@ INLINE uint8_t ld8at (uint32_t x) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			read_map, x, 1, read_transfer,
+			scpu, read_map, x, 1, read_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -234,8 +234,8 @@ INLINE uint16_t ld16at (uint32_t x) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes read from unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint16_t), x, ip);
+				"pu32-sim: core%u: %u bytes read from unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint16_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -281,7 +281,7 @@ INLINE uint16_t ld16at (uint32_t x) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			read_map, x, 2, read_transfer,
+			scpu, read_map, x, 2, read_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -296,8 +296,8 @@ INLINE uint32_t ld32at (uint32_t x) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes read from unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint32_t), x, ip);
+				"pu32-sim: core%u: %u bytes read from unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint32_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -343,7 +343,7 @@ INLINE uint32_t ld32at (uint32_t x) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			read_map, x, 4, read_transfer,
+			scpu, read_map, x, 4, read_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -408,7 +408,7 @@ INLINE uint8_t ldst8at (uint32_t x, uint8_t v) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 1, write_transfer,
+			scpu, write_map, x, 1, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -423,8 +423,8 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint16_t), x, ip);
+				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint16_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -486,7 +486,7 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 2, write_transfer,
+			scpu, write_map, x, 2, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -501,8 +501,8 @@ INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint32_t), x, ip);
+				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint32_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -564,7 +564,7 @@ INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 4, write_transfer,
+			scpu, write_map, x, 4, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -629,7 +629,7 @@ INLINE uint8_t cldst8at (uint32_t x, uint8_t v, uint8_t ov) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 1, write_transfer,
+			scpu, write_map, x, 1, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -644,8 +644,8 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint16_t), x, ip);
+				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint16_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -707,7 +707,7 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 2, write_transfer,
+			scpu, write_map, x, 2, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -722,8 +722,8 @@ INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 		else {
 			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 			sim_io_eprintf (sd,
-				"pu32-sim: %d bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				(int)sizeof(uint32_t), x, ip);
+				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+				scpu->coreid, (int)sizeof(uint32_t), x, ip);
 			sim_engine_halt (
 				sd, scpu, NULL, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -785,7 +785,7 @@ INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			write_map, x, 4, write_transfer,
+			scpu, write_map, x, 4, write_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
@@ -835,7 +835,7 @@ INLINE uint16_t ldinst (uint32_t x) {
 	}
 	sim_core_mapping *mapping =
 		sim_core_find_mapping (
-			read_map, x, 2, read_transfer,
+			scpu, read_map, x, 2, read_transfer,
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);

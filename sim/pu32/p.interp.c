@@ -46,7 +46,7 @@ static uint32_t walk_page_table (uint32_t addr, uint32_t coreid) {
 				sd, scpu, NULL, 0, sim_stopped, SIM_SIGBUS);
 		sim_core_mapping *mapping =
 			sim_core_find_mapping (
-				read_map, x, 4, read_transfer,
+				scpu, read_map, x, 4, read_transfer,
 				0 /*abort*/);
 		if (mapping)
 			return *(uint32_t *)sim_core_translate (mapping, x);

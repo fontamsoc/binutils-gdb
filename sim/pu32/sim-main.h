@@ -4,6 +4,11 @@
 #ifndef SIM_MAIN_H
 #define SIM_MAIN_H
 
+#define PU32_CPUCNT 8
+#if PU32_CPUCNT > 1
+#define WITH_SMP PU32_CPUCNT
+#endif
+
 #define _stringify(x) #x
 #define stringify(x) _stringify(x)
 
@@ -13,7 +18,6 @@
 
 #include <stdint.h>
 
-#define PU32_CPUCNT	1
 #define PU32_REG_SR	13
 #define PU32_REG_PC	16
 #define PU32_GPRCNT	17
@@ -129,6 +133,12 @@ struct sim_state {
 #define PU32_INITIAL_STACK_TOP		(PU32_INITIAL_STACK_BOTTOM - PU32_INITIAL_STACK_SIZE)
 #define PU32_INITIAL_HEAP_SIZE		0x10000
 #define PU32_INTRCHECK_STACK_SIZE	PAGE_SIZE
+#define PU32_CORETHREAD_STACK_SIZE	PAGE_SIZE
+
+#define KERNELADDR         0x4000
+#define PARKPUSZ           24
+#define PARKPU_ADDR        (KERNELADDR - PARKPUSZ)
+#define PARKPU_RESUME_ADDR (PARKPU_ADDR +  10)
 
 /* Number of reserved file-descriptors
    provided by the sim starting from 0:
