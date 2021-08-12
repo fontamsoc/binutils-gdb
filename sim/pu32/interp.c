@@ -2578,11 +2578,13 @@ int sim_write (
 }
 
 static char* hdd = NULL;
+static unsigned long corecnt = 1;
 
 static DECLARE_OPTION_HANDLER (pu32_option_handler);
 
 enum {
 	OPTION_HDD = OPTION_START,
+	OPTION_CORECNT,
 };
 
 static SIM_RC pu32_option_handler (
@@ -2595,6 +2597,20 @@ static SIM_RC pu32_option_handler (
 				strcpy(hdd, arg);
 			}
 			return SIM_RC_OK;
+		case OPTION_CORECNT:
+			if (arg) {
+				errno = 0; /* To distinguish success/failure after call */
+				corecnt = strtol(arg, 0, 0);
+				if (errno != 0) {
+					perror("strtol");
+					return SIM_RC_FAIL;
+				}
+				if (!corecnt || corecnt > PU32_CPUCNT) {
+					fprintf(stderr, "invalid number of cores\n");
+					return SIM_RC_FAIL;
+				}
+			}
+			return SIM_RC_OK;
 	}
 	return SIM_RC_OK;
 }
@@ -2602,6 +2618,8 @@ static SIM_RC pu32_option_handler (
 static const OPTION pu32_options[] = {
 	{{"hdd", required_argument, NULL, OPTION_HDD},
 		'\0', "FILEPATH", "Hard disk drive file path", pu32_option_handler },
+	{{"corecnt", required_argument, NULL, OPTION_CORECNT},
+		'\0', "CORECNT", "Number of cores", pu32_option_handler },
 	{{NULL, no_argument, NULL, 0}, '\0', NULL, NULL, NULL }
 };
 
@@ -2748,7 +2766,7 @@ SIM_DESC sim_open (
 	}
 	fcntl(stdinpipe[0], F_SETFL, fcntl(stdinpipe[0], F_GETFL) | O_NONBLOCK);
 	fcntl(stdinpipe[1], F_SETFL, fcntl(stdinpipe[1], F_GETFL) | O_NONBLOCK);
-	for (unsigned i = 0; i < PU32_CPUCNT; ++i) {
+	for (unsigned i = 0; i < corecnt; ++i) {
 		if (pipe((int *)intrsyncpipe[i]) == -1) {
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: pipe(intrsyncpipe[%u]) failed\n",
@@ -2796,7 +2814,7 @@ SIM_DESC sim_open (
 	}
 
 	pu32state *states = mmap (0,
-		ROUNDUPTOPOWEROFTWO(sizeof(pu32state)*PU32_CPUCNT, 0x1000),
+		ROUNDUPTOPOWEROFTWO(sizeof(pu32state)*corecnt, 0x1000),
 		PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS|MAP_UNINITIALIZED,
 		0, 0);
 	if (states == MAP_FAILED) {
@@ -2805,7 +2823,7 @@ SIM_DESC sim_open (
 	}
 
 	// CPU specific initialization.
-	for (unsigned i = 0; i < PU32_CPUCNT; ++i) {
+	for (unsigned i = 0; i < corecnt; ++i) {
 
 		int pu32_reg_fetch (
 			sim_cpu *scpu,
@@ -2905,7 +2923,7 @@ SIM_DESC sim_open (
 	}
 
 	// Spawn as many intrthread() as there are cores.
-	for (unsigned long i = 0; i < PU32_CPUCNT; ++i) {
+	for (unsigned long i = 0; i < corecnt; ++i) {
 		// Allocate memory to be used for the stack of intrthread(i).
 		void *intrthread_stack = mmap (
 			0, PU32_INTRCHECK_STACK_SIZE, PROT_READ | PROT_WRITE,
@@ -3215,7 +3233,7 @@ SIM_RC sim_create_inferior (
 	}
 
 	// Initialize all other states.
-	for (unsigned i = 0; i < PU32_CPUCNT; ++i) {
+	for (unsigned i = 0; i < corecnt; ++i) {
 		pu32state *scpustate = STATE_CPU(sd, i)->state;
 		scpustate->curctx = 0;
 		clraddrtranslcache[i]._ = -1;
