@@ -159,6 +159,16 @@ static volatile int haltsyncpipe[PU32_CPUCNT][2];
 // File descriptors for each context %timer.
 static volatile int timerfd[PU32_CPUCNT];
 
+// intrthread() thread IDs.
+static int intrthreadid[PU32_CPUCNT];
+// corethread() thread IDs.
+static int corethreadid[PU32_CPUCNT];
+
+// intrthread() stacks.
+static void *intrthread_stack[PU32_CPUCNT];
+// corethread() stacks.
+static void *corethread_stack[PU32_CPUCNT];
+
 // File descriptor nbr to be used by poll()
 // and dup()ed from STDIN_FILENO.
 // It is used because file descriptor 0 (STDIN_FILENO)
@@ -2948,60 +2958,32 @@ SIM_DESC sim_open (
 		scpu->state = &states[i];
 	}
 
-	// Spawn as many intrthread() as there are cores.
 	for (unsigned long i = 0; i < corecnt; ++i) {
 		// Allocate memory to be used for the stack of intrthread(i).
-		void *intrthread_stack = mmap (
+		void *stack = mmap (
 			0, PU32_INTRCHECK_STACK_SIZE, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK,
 			-1, 0);
-		if (intrthread_stack == MAP_FAILED) {
+		if (stack == MAP_FAILED) {
 			sim_io_eprintf (sd, "pu32-sim: %s: mmap(intrthread_stack) failed\n", __FUNCTION__);
 			free_state();
 			return SIM_RC_FAIL;
 		}
-		intrpending[i][0] = -1; // Using intrpending[i][0] to wait until intrthread(i) has initialized.
-		int intrthreadid = clone ((int(*)(void *))intrthread,
-			(void *)((unsigned long)intrthread_stack + PU32_INTRCHECK_STACK_SIZE),
-			CLONE_FILES | CLONE_FS | CLONE_IO | CLONE_PARENT |
-			CLONE_SIGHAND | CLONE_VM | CLONE_THREAD, (void *)i);
-		if (intrthreadid == -1) {
-			sim_io_eprintf (sd, "pu32-sim: %s: clone(intrthread) failed\n", __FUNCTION__);
-			free_state();
-			return SIM_RC_FAIL;
-		}
-		while (intrpending[i][0]); // Wait until intrthread(i) has initialized.
-		if (i == 0)
-			continue;
+		intrthread_stack[i] = stack;
 		// Allocate memory to be used for the stack of corethread(i).
-		void *corethread_stack = mmap (
+		stack = mmap (
 			0, PU32_CORETHREAD_STACK_SIZE, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK,
 			-1, 0);
-		if (corethread_stack == MAP_FAILED) {
+		if (stack == MAP_FAILED) {
 			sim_io_eprintf (sd, "pu32-sim: %s: mmap(corethread_stack) failed\n", __FUNCTION__);
 			free_state();
 			return SIM_RC_FAIL;
 		}
-		pu32state *scpustate = STATE_CPU(sd, i)->state;
-		scpustate->curctx = 1;
-		clraddrtranslcache[i]._ = -1;
-		scpustate->resettimer = 1;
-		scpustate->dohalt = 1;
-		uint32_t *scpustateregs = scpustate->regs;
-		scpustateregs[PU32_REG_PC] = PARKPU_HALT_ADDR;
-		scpustateregs[PU32_REG_FLAGS] = PU32_FLAGS_disTimerIntr;
-		scpustateregs[PU32_REG_KSL] = PU32_KERNELSPACE_START;
-		int corethreadid = clone ((int(*)(void *))corethread,
-			(void *)((unsigned long)corethread_stack + PU32_CORETHREAD_STACK_SIZE),
-			CLONE_FILES | CLONE_FS | CLONE_IO | CLONE_PARENT |
-			CLONE_SIGHAND | CLONE_VM | CLONE_THREAD, (void *)i);
-		if (corethreadid == -1) {
-			sim_io_eprintf (sd, "pu32-sim: %s: clone(corethread) failed\n", __FUNCTION__);
-			free_state();
-			return SIM_RC_FAIL;
-		}
+		corethread_stack[i] = stack;
 	}
+
+	corethreadid[0] = 0;
 
 	return sd;
 }
@@ -3172,6 +3154,59 @@ SIM_RC sim_create_inferior (
 	#if defined(PU32_DEBUG)
 	printf ("pu32-sim: %s\n", __FUNCTION__);
 	#endif
+
+	if (corethreadid[0]) {
+		for (unsigned i = 0; i < corecnt; ++i) {
+			if (tgkill(intrthreadid[0], intrthreadid[i], SIGKILL) == -1) {
+				perror("tgkill()");
+				sim_io_eprintf (sd, "pu32-sim: %s: tgkill() failed\n", __FUNCTION__);
+				return SIM_RC_FAIL;
+			}
+			if (i == 0)
+				continue;
+			if (tgkill(corethreadid[0], corethreadid[i], SIGKILL) == -1) {
+				perror("tgkill()");
+				sim_io_eprintf (sd, "pu32-sim: %s: tgkill() failed\n", __FUNCTION__);
+				return SIM_RC_FAIL;
+			}
+		}
+	}
+
+	for (unsigned long i = 0; i < corecnt; ++i) {
+		intrpending[i][0] = -1; // Using intrpending[i][0] to wait until intrthread(i) has initialized.
+		int tid = clone ((int(*)(void *))intrthread,
+			(void *)((unsigned long)intrthread_stack[i] + PU32_INTRCHECK_STACK_SIZE),
+			CLONE_FILES | CLONE_FS | CLONE_IO |
+			CLONE_SIGHAND | CLONE_VM | CLONE_THREAD, (void *)i);
+		if (tid == -1) {
+			sim_io_eprintf (sd, "pu32-sim: %s: clone(intrthread) failed\n", __FUNCTION__);
+			return SIM_RC_FAIL;
+		}
+		intrthreadid[i] = tid;
+		while (intrpending[i][0]); // Wait until intrthread(i) has initialized.
+		if (i == 0) {
+			corethreadid[0] = getpid(); // Get thread group ID.
+			continue;
+		}
+		pu32state *scpustate = STATE_CPU(sd, i)->state;
+		scpustate->curctx = 1;
+		clraddrtranslcache[i]._ = -1;
+		scpustate->resettimer = 1;
+		scpustate->dohalt = 1;
+		uint32_t *scpustateregs = scpustate->regs;
+		scpustateregs[PU32_REG_PC] = PARKPU_HALT_ADDR;
+		scpustateregs[PU32_REG_FLAGS] = PU32_FLAGS_disTimerIntr;
+		scpustateregs[PU32_REG_KSL] = PU32_KERNELSPACE_START;
+		tid = clone ((int(*)(void *))corethread,
+			(void *)((unsigned long)corethread_stack[i] + PU32_CORETHREAD_STACK_SIZE),
+			CLONE_FILES | CLONE_FS | CLONE_IO |
+			CLONE_SIGHAND | CLONE_VM | CLONE_THREAD, (void *)i);
+		if (tid == -1) {
+			sim_io_eprintf (sd, "pu32-sim: %s: clone(corethread) failed\n", __FUNCTION__);
+			return SIM_RC_FAIL;
+		}
+		corethreadid[i] = tid;
+	}
 
 	sim_cpu *scpu = STATE_CPU(sd, 0);
 
