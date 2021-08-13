@@ -145,7 +145,7 @@ static uint32_t pgds[PU32_CPUCNT];
 static struct termios ttyconfig, savedttyconfig;
 
 // Pipe file descriptors used to buffer the id of interrupts.
-static volatile int intctrlpipe[2];
+static volatile int intctrlpipe[PU32_CPUCNT][2];
 
 // Pipe file descriptors used for buffering data from STDIN.
 static volatile int stdinpipe[2];
@@ -549,12 +549,12 @@ void sim_engine_run (
 			} else if (!(scpustateregs[PU32_REG_FLAGS] & PU32_FLAGS_disExtIntr) &&
 				intrpending[coreid][STDIN_POLL_IDX]) {
 
-				while (write (intctrlpipe[1], &((uint32_t){PU32_VM_IRQ_TTYS0}), sizeof(uint32_t)) == -1) {
+				while (write (intctrlpipe[coreid][1], &((uint32_t){PU32_VM_IRQ_TTYS0}), sizeof(uint32_t)) == -1) {
 					if (errno == EINTR)
 						continue;
 					perror("write()");
-					sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[0]) failed\n",
-						__FUNCTION__);
+					sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[%u][1]) failed\n",
+						__FUNCTION__, coreid);
 					sim_engine_halt (
 						sd, scpu, NULL,
 						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
@@ -1770,6 +1770,12 @@ void sim_engine_run (
 
 								int fd = scpustateregs[1];
 
+								switch (fd) {
+									case PU32_BIOS_FD_INTCTRLDEV:
+										fd = intctrlpipe[coreid][0];
+										break;
+								}
+
 								unsigned bsz = ((fd != PU32_BIOS_FD_STORAGEDEV) ? 1 : BLKSZ);
 
 								scpustateregs[1] = (read (fd,
@@ -1785,6 +1791,12 @@ void sim_engine_run (
 							case __NR_write: {
 
 								int fd = scpustateregs[1];
+
+								switch (fd) {
+									case PU32_BIOS_FD_INTCTRLDEV:
+										fd = intctrlpipe[coreid][1];
+										break;
+								}
 
 								unsigned bsz = ((fd != PU32_BIOS_FD_STORAGEDEV) ? 1 : BLKSZ);
 
@@ -2774,19 +2786,6 @@ SIM_DESC sim_open (
 			__FUNCTION__);
 		return SIM_RC_FAIL;
 	}
-	if (pipe((int *)intctrlpipe) == -1) {
-		sim_io_eprintf(sd,
-			"pu32-sim: %s: pipe(intctrlpipe) failed\n",
-			__FUNCTION__);
-		return SIM_RC_FAIL;
-	}
-	if ((intctrlpipe[0] = dup2(intctrlpipe[0], PU32_BIOS_FD_INTCTRLDEV)) != PU32_BIOS_FD_INTCTRLDEV) {
-		sim_io_eprintf(sd,
-			"pu32-sim: %s: dup2(intctrlpipe[0], PU32_BIOS_FD_INTCTRLDEV) failed\n",
-			__FUNCTION__);
-		return SIM_RC_FAIL;
-	}
-	fcntl(intctrlpipe[0], F_SETFL, fcntl(intctrlpipe[0], F_GETFL) | O_NONBLOCK);
 	if (pipe((int *)stdinpipe) == -1) {
 		sim_io_eprintf(sd,
 			"pu32-sim: %s: pipe(stdinpipe) failed\n",
@@ -2802,6 +2801,13 @@ SIM_DESC sim_open (
 	fcntl(stdinpipe[0], F_SETFL, fcntl(stdinpipe[0], F_GETFL) | O_NONBLOCK);
 	fcntl(stdinpipe[1], F_SETFL, fcntl(stdinpipe[1], F_GETFL) | O_NONBLOCK);
 	for (unsigned i = 0; i < corecnt; ++i) {
+		if (pipe((int *)intctrlpipe[i]) == -1) {
+			sim_io_eprintf(sd,
+				"pu32-sim: %s: pipe(intctrlpipe[%u) failed\n",
+				__FUNCTION__, i);
+			return SIM_RC_FAIL;
+		}
+		fcntl(intctrlpipe[i][0], F_SETFL, fcntl(intctrlpipe[i][0], F_GETFL) | O_NONBLOCK);
 		if (pipe((int *)intrsyncpipe[i]) == -1) {
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: pipe(intrsyncpipe[%u]) failed\n",
