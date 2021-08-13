@@ -183,8 +183,9 @@ static void *corethread_stack[PU32_CPUCNT];
 #define INTRSYNC_POLL_IDX 0 /* Used to restart poll() */
 #define TIMER_POLL_IDX (INTRSYNC_POLL_IDX+1)
 #define STDIN_POLL_IDX (TIMER_POLL_IDX+1) /* last in intrfds[][] so to be easily ignored */
+#define INTRCTRL_PENDING_IDX (STDIN_POLL_IDX+1)
 
-static volatile unsigned intrpending[PU32_CPUCNT][POLL_NFDS];
+static volatile unsigned intrpending[PU32_CPUCNT][POLL_NFDS+1/*INTRCTRL_PENDING_IDX*/];
 static volatile struct pollfd intrfds[PU32_CPUCNT][POLL_NFDS];
 
 static volatile unsigned haltedcore[PU32_CPUCNT];
@@ -434,6 +435,8 @@ static union {
 
 static volatile int brkcoreid;
 
+static unsigned long corecnt = 1;
+
 void sim_engine_run (
 	SIM_DESC _ /* ignore */,
 	int coreid,
@@ -506,7 +509,7 @@ void sim_engine_run (
 		if (scpustate->curctx && !scpustate->skipintrhandling) {
 
 			if (scpustate->dohalt && (haltedcore[coreid] =
-				(!intrpending[coreid][TIMER_POLL_IDX] &&
+				(!intrpending[coreid][TIMER_POLL_IDX] && !intrpending[coreid][INTRCTRL_PENDING_IDX] &&
 				((coreid != 0) || !intrpending[coreid][STDIN_POLL_IDX])))) {
 
 				while (read (haltsyncpipe[coreid][0], &((char){0}), 1) == -1) {
@@ -543,6 +546,27 @@ void sim_engine_run (
 				intrpending[coreid][TIMER_POLL_IDX] = 0;
 
 				scpustateregs[PU32_REG_FAULTREASON] = pu32TimerIntr;
+				scpustate->curctx = 0;
+				clraddrtranslcache[coreid]._ = -1;
+
+			} else if (!(scpustateregs[PU32_REG_FLAGS] & PU32_FLAGS_disExtIntr) &&
+				intrpending[coreid][INTRCTRL_PENDING_IDX]) {
+
+				while (write (intctrlpipe[coreid][1], &((uint32_t){-1}), sizeof(uint32_t)) == -1) {
+					if (errno == EINTR)
+						continue;
+					perror("write()");
+					sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[%u][1]) failed\n",
+						__FUNCTION__, coreid);
+					sim_engine_halt (
+						sd, scpu, NULL,
+						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+						sim_stopped, SIM_SIGABRT);
+				}
+
+				intrpending[coreid][INTRCTRL_PENDING_IDX] = 0;
+
+				scpustateregs[PU32_REG_FAULTREASON] = pu32ExtIntr;
 				scpustate->curctx = 0;
 				clraddrtranslcache[coreid]._ = -1;
 
@@ -1770,6 +1794,11 @@ void sim_engine_run (
 
 								int fd = scpustateregs[1];
 
+								void *buf = (void *)get_host_addr (
+									scpustateregs[2],
+									scpustateregs[3],
+									write_map, write_transfer);
+
 								switch (fd) {
 									case PU32_BIOS_FD_INTCTRLDEV:
 										fd = intctrlpipe[coreid][0];
@@ -1778,12 +1807,7 @@ void sim_engine_run (
 
 								unsigned bsz = ((fd != PU32_BIOS_FD_STORAGEDEV) ? 1 : BLKSZ);
 
-								scpustateregs[1] = (read (fd,
-									(void *)get_host_addr (
-										scpustateregs[2],
-										scpustateregs[3],
-										write_map, write_transfer),
-									((size_t)scpustateregs[3] * bsz)) / bsz);
+								scpustateregs[1] = (read (fd, buf, ((size_t)scpustateregs[3] * bsz)) / bsz);
 
 								break;
 							}
@@ -1792,20 +1816,41 @@ void sim_engine_run (
 
 								int fd = scpustateregs[1];
 
+								void *buf = (void *)get_host_addr (
+									scpustateregs[2],
+									scpustateregs[3],
+									read_map, read_transfer);
+
 								switch (fd) {
-									case PU32_BIOS_FD_INTCTRLDEV:
+									case PU32_BIOS_FD_INTCTRLDEV: {
+
+										uint32_t intrdst = *(uint32_t *)buf;
+
+										if (intrdst >= corecnt)
+											intrdst = -1;
+										else
+											intrpending[intrdst][INTRCTRL_PENDING_IDX] = 1;
+
+										while (write (intctrlpipe[coreid][1], &intrdst, sizeof(uint32_t)) == -1) {
+											if (errno == EINTR)
+												continue;
+											perror("write()");
+											sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[%u][1]) failed\n",
+												__FUNCTION__, coreid);
+											sim_engine_halt (
+												sd, scpu, NULL, scpustateregs[PU32_REG_PC],
+												sim_stopped, SIM_SIGABRT);
+										}
+
 										fd = intctrlpipe[coreid][1];
+
 										break;
+									}
 								}
 
 								unsigned bsz = ((fd != PU32_BIOS_FD_STORAGEDEV) ? 1 : BLKSZ);
 
-								scpustateregs[1] = (write (fd,
-									(void *)get_host_addr(
-										scpustateregs[2],
-										scpustateregs[3],
-										read_map, read_transfer),
-									((size_t)scpustateregs[3] * bsz)) / bsz);
+								scpustateregs[1] = (write (fd, buf, ((size_t)scpustateregs[3] * bsz)) / bsz);
 
 								fsync(fd);
 
@@ -2625,7 +2670,6 @@ int sim_write (
 }
 
 static char* hdd = NULL;
-static unsigned long corecnt = 1;
 
 static DECLARE_OPTION_HANDLER (pu32_option_handler);
 
