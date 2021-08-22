@@ -167,7 +167,7 @@ void pu32_cpu_exception_resume (SIM_DESC, SIM_CPU *, int);
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 
 // Must match linux/include/uapi/asm-generic/unistd.h .
-#define __NR_syscalls	440
+#define __NR_syscalls	441
 #define __NR_settls		(__NR_syscalls+0)
 #define __NR_gettls		(__NR_syscalls+1)
 #define __NR_PU32_syscalls_start (__NR_syscalls+2)
