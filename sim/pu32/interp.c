@@ -1822,16 +1822,45 @@ void sim_engine_run (
 									read_map, read_transfer);
 
 								switch (fd) {
+
 									case PU32_BIOS_FD_INTCTRLDEV: {
 
 										uint32_t intrdst = *(uint32_t *)buf;
 
 										if (intrdst >= corecnt)
 											intrdst = -1;
-										else
+										else { // Do work similar to intrthread(intrdst) to interrupt corethread(intrdst).
 											intrpending[intrdst][INTRCTRL_PENDING_IDX] = 1;
 
-										while (write (intctrlpipe[coreid][1], &intrdst, sizeof(uint32_t)) == -1) {
+											sim_cpu *scpu = STATE_CPU(sd, intrdst);
+											pu32state *scpustate = scpu->state;
+
+											if (haltedcore[intrdst]) {
+												while (write (haltsyncpipe[intrdst][1], &((char){0}), 1) == -1) {
+													if (errno == EINTR)
+														continue;
+													perror("write()");
+													sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", intrdst);
+													sim_engine_halt (
+														sd, scpu, NULL,
+														scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+														sim_stopped, SIM_SIGABRT);
+												}
+												while (haltedcore[intrdst]);
+												while (write (haltsyncpipe[intrdst][1], &((char){0}), 1) == -1) {
+													if (errno == EINTR)
+														continue;
+													perror("write()");
+													sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", intrdst);
+													sim_engine_halt (
+														sd, scpu, NULL,
+														scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+														sim_stopped, SIM_SIGABRT);
+												}
+											}
+										}
+
+										while ((scpustateregs[1] = write (intctrlpipe[coreid][1], &intrdst, sizeof(uint32_t))) == -1) {
 											if (errno == EINTR)
 												continue;
 											perror("write()");
@@ -1842,17 +1871,20 @@ void sim_engine_run (
 												sim_stopped, SIM_SIGABRT);
 										}
 
-										fd = intctrlpipe[coreid][1];
+										break;
+									}
+
+									default: {
+
+										unsigned bsz = ((fd != PU32_BIOS_FD_STORAGEDEV) ? 1 : BLKSZ);
+
+										scpustateregs[1] = (write (fd, buf, ((size_t)scpustateregs[3] * bsz)) / bsz);
+
+										fsync(fd);
 
 										break;
 									}
 								}
-
-								unsigned bsz = ((fd != PU32_BIOS_FD_STORAGEDEV) ? 1 : BLKSZ);
-
-								scpustateregs[1] = (write (fd, buf, ((size_t)scpustateregs[3] * bsz)) / bsz);
-
-								fsync(fd);
 
 								break;
 							}
@@ -3206,23 +3238,23 @@ SIM_RC sim_create_inferior (
 	#endif
 
 	if (corethreadid[0]) {
-		for (unsigned i = 0; i < corecnt; ++i) {
-			if (tgkill(intrthreadid[0], intrthreadid[i], SIGKILL) == -1) {
-				perror("tgkill()");
-				sim_io_eprintf (sd, "pu32-sim: %s: tgkill() failed\n", __FUNCTION__);
-				return SIM_RC_FAIL;
-			}
-			if (i == 0)
-				continue;
-			if (tgkill(corethreadid[0], corethreadid[i], SIGKILL) == -1) {
-				perror("tgkill()");
-				sim_io_eprintf (sd, "pu32-sim: %s: tgkill() failed\n", __FUNCTION__);
-				return SIM_RC_FAIL;
+		// I get here if all intrthread() and corethread() were already created.
+		// I halt non-zero cores.
+		for (unsigned i = 1; i < corecnt; ++i) {
+			pu32state *scpustate = STATE_CPU(sd, i)->state;
+			while (!haltedcore[i]) {
+				scpustate->curctx = 1;
+				clraddrtranslcache[i]._ = -1;
+				scpustate->resettimer = 1;
+				scpustate->dohalt = 1;
+				uint32_t *scpustateregs = scpustate->regs;
+				scpustateregs[PU32_REG_PC] = PARKPU_RESUME_ADDR;
+				scpustateregs[PU32_REG_FLAGS] = PU32_FLAGS_disTimerIntr;
+				scpustateregs[PU32_REG_KSL] = PU32_KERNELSPACE_START;
 			}
 		}
-	}
 
-	for (unsigned long i = 0; i < corecnt; ++i) {
+	} else for (unsigned long i = 0; i < corecnt; ++i) {
 		intrpending[i][0] = -1; // Using intrpending[i][0] to wait until intrthread(i) has initialized.
 		int tid = clone ((int(*)(void *))intrthread,
 			(void *)((unsigned long)intrthread_stack[i] + PU32_INTRCHECK_STACK_SIZE),
@@ -3244,7 +3276,7 @@ SIM_RC sim_create_inferior (
 		scpustate->resettimer = 1;
 		scpustate->dohalt = 1;
 		uint32_t *scpustateregs = scpustate->regs;
-		scpustateregs[PU32_REG_PC] = PARKPU_HALT_ADDR;
+		scpustateregs[PU32_REG_PC] = PARKPU_RESUME_ADDR;
 		scpustateregs[PU32_REG_FLAGS] = PU32_FLAGS_disTimerIntr;
 		scpustateregs[PU32_REG_KSL] = PU32_KERNELSPACE_START;
 		tid = clone ((int(*)(void *))corethread,
