@@ -43,7 +43,7 @@ static uint32_t walk_page_table (uint32_t addr, uint32_t coreid) {
 		sim_cpu *scpu = STATE_CPU (sd, 0);
 		if (x&0b11)
 			sim_engine_halt (
-				sd, scpu, NULL, 0, sim_stopped, SIM_SIGBUS);
+				sd, scpu, scpu, 0, sim_stopped, SIM_SIGBUS);
 		sim_core_mapping *mapping =
 			sim_core_find_mapping (
 				scpu, read_map, x, 4, read_transfer,

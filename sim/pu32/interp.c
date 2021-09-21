@@ -72,7 +72,7 @@ static sim_core_mapping *sim_core_find_mapping (
 			(unsigned long)addr,
 			(unsigned long)CIA_ADDR(cia));
 		sim_engine_halt(
-			sd, scpu, NULL, cia,
+			sd, scpu, scpu, cia,
 			sim_stopped, SIM_SIGSEGV);
 	}
 	return NULL;
@@ -92,7 +92,7 @@ static address_word sim_core_map_memory (
 			scpu->coreid, __FUNCTION__, addr);
 		pu32state *scpustate = scpu->state;
 		sim_engine_halt (
-			sd, scpu, NULL, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
 	sim_core_mapping *mapping = (&CPU_CORE(scpu)->common)->map[write_map].first;
@@ -108,7 +108,7 @@ static address_word sim_core_map_memory (
 			scpu->coreid, __FUNCTION__, addr, nr_bytes);
 		pu32state *scpustate = scpu->state;
 		sim_engine_halt (
-			sd, scpu, NULL, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
 	void *mmap_buffer = mmap (
@@ -120,7 +120,7 @@ static address_word sim_core_map_memory (
 		sim_io_eprintf (sd, "pu32-sim: core%u: mmap() failed\n", scpu->coreid);
 		pu32state *scpustate = scpu->state;
 		sim_engine_halt (
-			sd, scpu, NULL, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
 	sim_core_attach (sd, NULL,
@@ -217,7 +217,7 @@ static void intrthread (unsigned coreid) {
 			perror("poll()");
 			sim_io_eprintf (sd, "pu32-sim: %s: poll(intrfds[%u]) failed\n", __FUNCTION__, coreid);
 			sim_engine_halt (
-				sd, scpu, NULL,
+				sd, scpu, scpu,
 				scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 				sim_stopped, SIM_SIGABRT);
 		}
@@ -230,7 +230,7 @@ static void intrthread (unsigned coreid) {
 				sim_io_eprintf (sd, "pu32-sim: %s: read(intrfds[%u][INTRSYNC_POLL_IDX].fd) failed\n",
 					__FUNCTION__, coreid);
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -260,7 +260,7 @@ static void intrthread (unsigned coreid) {
 				default:
 					sim_io_eprintf (sd, "pu32-sim: %s: invalid intrid %d\n", __FUNCTION__, intrid);
 					sim_engine_halt (
-						sd, scpu, NULL,
+						sd, scpu, scpu,
 						scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 					break;
@@ -272,7 +272,7 @@ static void intrthread (unsigned coreid) {
 				perror("write()");
 				sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", coreid);
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -286,7 +286,7 @@ static void intrthread (unsigned coreid) {
 				perror("read()");
 				sim_io_eprintf (sd, "pu32-sim: %s: read(intrfds[%u][TIMER_POLL_IDX].fd) failed\n", __FUNCTION__, coreid);
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -303,7 +303,7 @@ static void intrthread (unsigned coreid) {
 				perror("fcntl()");
 				sim_io_eprintf (sd, "pu32-sim: fcntl(STDIN_FILENO) failed\n");
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -316,7 +316,7 @@ static void intrthread (unsigned coreid) {
 				perror("fcntl()");
 				sim_io_eprintf (sd, "pu32-sim: fcntl(STDIN_FILENO) failed\n");
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -330,7 +330,7 @@ static void intrthread (unsigned coreid) {
 				perror("write()");
 				sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", coreid);
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -341,7 +341,7 @@ static void intrthread (unsigned coreid) {
 				perror("write()");
 				sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", coreid);
 				sim_engine_halt (
-					sd, scpu, NULL,
+					sd, scpu, scpu,
 					scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 					sim_stopped, SIM_SIGABRT);
 			}
@@ -360,7 +360,7 @@ static uint64_t getclkperiod (unsigned coreid) {
 		sim_cpu *scpu = STATE_CPU(sd, coreid);
 		pu32state *scpustate = scpu->state;
 		sim_engine_halt (
-			sd, scpu, NULL, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
 	return (uint64_t)t.tv_nsec + ((uint64_t)t.tv_sec*1000000000);
@@ -376,7 +376,7 @@ static void restart_intrfds_poll (unsigned coreid, char intrid) {
 		sim_cpu *scpu = STATE_CPU(sd, coreid);
 		pu32state *scpustate = scpu->state;
 		sim_engine_halt (
-			sd, scpu, NULL, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
 	// Wait for intrthread() to complete.
@@ -389,7 +389,7 @@ static void restart_intrfds_poll (unsigned coreid, char intrid) {
 		sim_cpu *scpu = STATE_CPU(sd, coreid);
 		pu32state *scpustate = scpu->state;
 		sim_engine_halt (
-			sd, scpu, NULL,
+			sd, scpu, scpu,
 			scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
@@ -484,7 +484,7 @@ void sim_engine_run (
 			perror("timerfd_settime()");
 			sim_io_eprintf (sd, "pu32-sim: timerfd_settime(%u) failed\n", fd);
 			sim_engine_halt (
-				sd, scpu, NULL, scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+				sd, scpu, scpu, scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 				sim_stopped, SIM_SIGABRT);
 		}
 
@@ -519,7 +519,7 @@ void sim_engine_run (
 					sim_io_eprintf (sd, "pu32-sim: %s: read(haltsyncpipe[%u][0]) failed\n",
 						__FUNCTION__, coreid);
 					sim_engine_halt (
-						sd, scpu, NULL,
+						sd, scpu, scpu,
 						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
@@ -531,7 +531,7 @@ void sim_engine_run (
 					sim_io_eprintf (sd, "pu32-sim: %s: read(haltsyncpipe[%u][0]) failed\n",
 						__FUNCTION__, coreid);
 					sim_engine_halt (
-						sd, scpu, NULL,
+						sd, scpu, scpu,
 						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
@@ -559,7 +559,7 @@ void sim_engine_run (
 					sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[%u][1]) failed\n",
 						__FUNCTION__, coreid);
 					sim_engine_halt (
-						sd, scpu, NULL,
+						sd, scpu, scpu,
 						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
@@ -580,7 +580,7 @@ void sim_engine_run (
 					sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[%u][1]) failed\n",
 						__FUNCTION__, coreid);
 					sim_engine_halt (
-						sd, scpu, NULL,
+						sd, scpu, scpu,
 						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
@@ -1744,7 +1744,7 @@ void sim_engine_run (
 								tcsetattr(STDOUT_FILENO, TCSAFLUSH, &savedttyconfig);
 
 								sim_engine_halt (
-									sd, scpu, NULL, scpustateregs[PU32_REG_PC],
+									sd, scpu, scpu, scpustateregs[PU32_REG_PC],
 									sim_exited, scpustateregs[1]);
 
 								break;
@@ -1842,7 +1842,7 @@ void sim_engine_run (
 													perror("write()");
 													sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", intrdst);
 													sim_engine_halt (
-														sd, scpu, NULL,
+														sd, scpu, scpu,
 														scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 														sim_stopped, SIM_SIGABRT);
 												}
@@ -1853,7 +1853,7 @@ void sim_engine_run (
 													perror("write()");
 													sim_io_eprintf (sd, "pu32-sim: write(haltsyncpipe[%u][1]) failed\n", intrdst);
 													sim_engine_halt (
-														sd, scpu, NULL,
+														sd, scpu, scpu,
 														scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 														sim_stopped, SIM_SIGABRT);
 												}
@@ -1867,7 +1867,7 @@ void sim_engine_run (
 											sim_io_eprintf (sd, "pu32-sim: %s: write(intctrlpipe[%u][1]) failed\n",
 												__FUNCTION__, coreid);
 											sim_engine_halt (
-												sd, scpu, NULL, scpustateregs[PU32_REG_PC],
+												sd, scpu, scpu, scpustateregs[PU32_REG_PC],
 												sim_stopped, SIM_SIGABRT);
 										}
 
@@ -2086,7 +2086,7 @@ void sim_engine_run (
 									scpustateregs[PU32_REG_SR]);
 
 								sim_engine_halt (
-									sd, scpu, NULL, scpustateregs[PU32_REG_PC],
+									sd, scpu, scpu, scpustateregs[PU32_REG_PC],
 									sim_stopped, SIM_SIGABRT);
 
 								break;
@@ -2106,7 +2106,7 @@ void sim_engine_run (
 
 						if (coreid == 0) /* only core0 does this */
 							sim_engine_halt (
-								sd, scpu, NULL, scpustateregs[PU32_REG_PC+curctxgproffset],
+								sd, scpu, scpu, scpustateregs[PU32_REG_PC+curctxgproffset],
 								sim_stopped, SIM_SIGTRAP);
 						else {
 							brkcoreid = coreid;
@@ -2386,7 +2386,7 @@ void sim_engine_run (
 						if (clock_gettime(CLOCK_BOOTTIME, &t) == -1) {
 							sim_io_eprintf (sd, "pu32-sim: clock_gettime() failed\n");
 							sim_engine_halt (
-								sd, scpu, NULL, scpustateregs[PU32_REG_PC+curctxgproffset],
+								sd, scpu, scpu, scpustateregs[PU32_REG_PC+curctxgproffset],
 								sim_stopped, SIM_SIGABRT);
 							return ((uint64_t){0});
 						}
@@ -2577,7 +2577,7 @@ void sim_engine_run (
 								inst0, inst1, scpustateregs[PU32_REG_PC+curctxgproffset]);
 
 						sim_engine_halt (
-							sd, scpu, NULL, scpustateregs[PU32_REG_PC+curctxgproffset],
+							sd, scpu, scpu, scpustateregs[PU32_REG_PC+curctxgproffset],
 							sim_stopped, SIM_SIGABRT);
 
 						break;
@@ -2595,7 +2595,7 @@ void sim_engine_run (
 				volatile uint32_t *scpustateregs = scpustate->regs;
 				unsigned curctxgproffset = (scpustate->curctx*PU32_GPRCNT);
 				sim_engine_halt (
-					sd, scpu, NULL, scpustateregs[PU32_REG_PC+curctxgproffset],
+					sd, scpu, scpu, scpustateregs[PU32_REG_PC+curctxgproffset],
 					sim_stopped, SIM_SIGTRAP);
 				brkcoreid = 0;
 			} else {
@@ -3295,7 +3295,7 @@ SIM_RC sim_create_inferior (
 	// Write 4 bytes data to memory.
 	INLINE void st32at (uint32_t x, uint32_t v) {
 		if (x&0b11)
-			sim_engine_halt (sd, scpu, NULL, 0, sim_stopped, SIM_SIGBUS);
+			sim_engine_halt (sd, scpu, scpu, 0, sim_stopped, SIM_SIGBUS);
 		sim_core_mapping *mapping =
 			sim_core_find_mapping (
 				scpu, write_map, x, 4, write_transfer,
