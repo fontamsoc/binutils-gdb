@@ -1337,10 +1337,12 @@ void sim_engine_run (
 				break;
 			}
 
+			case 0x74:
 			case 0xf4: {
 				// Specification from the
 				// instruction set manual:
-				// ld8 %gpr1, %gpr2 |30|100|rrrr|rrrr|
+				// vld8 %gpr1, %gpr2 |14|100|rrrr|rrrr|
+				// ld8  %gpr1, %gpr2 |30|100|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
@@ -1353,10 +1355,12 @@ void sim_engine_run (
 				break;
 			}
 
+			case 0x75:
 			case 0xf5: {
 				// Specification from the
 				// instruction set manual:
-				// ld16 %gpr1, %gpr2 |30|101|rrrr|rrrr|
+				// vld16 %gpr1, %gpr2 |14|101|rrrr|rrrr|
+				// ld16  %gpr1, %gpr2 |30|101|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
@@ -1369,10 +1373,12 @@ void sim_engine_run (
 				break;
 			}
 
+			case 0x76:
 			case 0xf6: {
 				// Specification from the
 				// instruction set manual:
-				// ld32 %gpr1, %gpr2 |30|110|rrrr|rrrr|
+				// vld32 %gpr1, %gpr2 |14|110|rrrr|rrrr|
+				// ld32  %gpr1, %gpr2 |30|110|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
@@ -1385,10 +1391,12 @@ void sim_engine_run (
 				break;
 			}
 
+			case 0x70:
 			case 0xf0: {
 				// Specification from the
 				// instruction set manual:
-				// st8 %gpr1, %gpr2 |30|000|rrrr|rrrr|
+				// vst8 %gpr1, %gpr2 |14|000|rrrr|rrrr|
+				// st8  %gpr1, %gpr2 |30|000|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
@@ -1402,10 +1410,12 @@ void sim_engine_run (
 				break;
 			}
 
+			case 0x71:
 			case 0xf1: {
 				// Specification from the
 				// instruction set manual:
-				// st16 %gpr1, %gpr2 |30|001|rrrr|rrrr|
+				// vst16 %gpr1, %gpr2 |14|001|rrrr|rrrr|
+				// st16  %gpr1, %gpr2 |30|001|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
@@ -1419,10 +1429,12 @@ void sim_engine_run (
 				break;
 			}
 
+			case 0x72:
 			case 0xf2: {
 				// Specification from the
 				// instruction set manual:
-				// st32 %gpr1, %gpr2 |30|010|rrrr|rrrr|
+				// vst32 %gpr1, %gpr2 |14|010|rrrr|rrrr|
+				// st32  %gpr1, %gpr2 |30|010|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);

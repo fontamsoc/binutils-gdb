@@ -48,7 +48,7 @@ INLINE void st8at (uint32_t x, uint8_t v) {
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
-	*(uint8_t *)x_translated = v;
+	*(volatile uint8_t *)x_translated = v;
 }
 
 // Write 2 bytes data to memory.
@@ -111,7 +111,7 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
-	*(uint16_t *)x_translated = v;
+	*(volatile uint16_t *)x_translated = v;
 }
 
 // Write 4 bytes data to memory.
@@ -174,7 +174,7 @@ INLINE void st32at (uint32_t x, uint32_t v) {
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
-	*(uint32_t *)x_translated = v;
+	*(volatile uint32_t *)x_translated = v;
 }
 
 // Read 1 byte data from memory.
@@ -223,7 +223,7 @@ INLINE uint8_t ld8at (uint32_t x) {
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
-	return *(uint8_t *)x_translated;
+	return *(volatile uint8_t *)x_translated;
 }
 
 // Read 2 bytes data from memory.
@@ -285,7 +285,7 @@ INLINE uint16_t ld16at (uint32_t x) {
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
-	return *(uint16_t *)x_translated;
+	return *(volatile uint16_t *)x_translated;
 }
 
 // Read 4 bytes data from memory.
@@ -347,7 +347,7 @@ INLINE uint32_t ld32at (uint32_t x) {
 			1 /*abort*/);
 	void *x_translated = sim_core_translate (mapping, x);
 	x_translated_cached[coreid] = ((unsigned long)x_translated & PAGE_MASK);
-	return *(uint32_t *)x_translated;
+	return *(volatile uint32_t *)x_translated;
 }
 
 // ReadWrite 1 byte data to memory.

@@ -155,6 +155,14 @@ void md_begin (void) {
 	hash_insert (opcode_hash_control, "st16", (void*)0xf1);
 	hash_insert (opcode_hash_control, "st32", (void*)0xf2);
 	hash_insert (opcode_hash_control, "st", (void*)0xfff2);
+	hash_insert (opcode_hash_control, "vld8", (void*)0x74);
+	hash_insert (opcode_hash_control, "vld16", (void*)0x75);
+	hash_insert (opcode_hash_control, "vld32", (void*)0x76);
+	hash_insert (opcode_hash_control, "vld", (void*)0xff76);
+	hash_insert (opcode_hash_control, "vst8", (void*)0x70);
+	hash_insert (opcode_hash_control, "vst16", (void*)0x71);
+	hash_insert (opcode_hash_control, "vst32", (void*)0x72);
+	hash_insert (opcode_hash_control, "vst", (void*)0xff72);
 	hash_insert (opcode_hash_control, "ldst8", (void*)0xf8);
 	hash_insert (opcode_hash_control, "ldst16", (void*)0xf9);
 	hash_insert (opcode_hash_control, "ldst32", (void*)0xfa);
@@ -409,6 +417,14 @@ void md_assemble (char *str) {
 		case 0xf1: // st16
 		case 0xf2: // st32
 		case 0xfff2: // st
+		case 0x74: // vld8
+		case 0x75: // vld16
+		case 0x76: // vld32
+		case 0xff76: // vld
+		case 0x70: // vst8
+		case 0x71: // vst16
+		case 0x72: // vst32
+		case 0xff72: // vst
 		case 0xf8: // ldst8
 		case 0xf9: // ldst16
 		case 0xfa: // ldst32

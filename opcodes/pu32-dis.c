@@ -738,6 +738,90 @@ int print_insn_pu32 (bfd_vma addr, struct disassemble_info * info) {
 			break;
 		}
 
+		case 0x74: {
+			// Specification from the
+			// instruction set manual:
+			// vld8 %gpr1, %gpr2 |14|100|rrrr|rrrr|
+
+			unsigned gpr2 = buffer[1]&0xf;
+
+			fpr (stream, "vld8 %s, %s",
+				regnames[(buffer[1]>>4)&0xf],
+				regnames[gpr2]);
+
+			break;
+		}
+
+		case 0x75: {
+			// Specification from the
+			// instruction set manual:
+			// vld16 %gpr1, %gpr2 |14|101|rrrr|rrrr|
+
+			unsigned gpr2 = buffer[1]&0xf;
+
+			fpr (stream, "vld16 %s, %s",
+				regnames[(buffer[1]>>4)&0xf],
+				regnames[gpr2]);
+
+			break;
+		}
+
+		case 0x76: {
+			// Specification from the
+			// instruction set manual:
+			// vld32 %gpr1, %gpr2 |14|110|rrrr|rrrr|
+
+			unsigned gpr2 = buffer[1]&0xf;
+
+			fpr (stream, "vld32 %s, %s",
+				regnames[(buffer[1]>>4)&0xf],
+				regnames[gpr2]);
+
+			break;
+		}
+
+		case 0x70: {
+			// Specification from the
+			// instruction set manual:
+			// vst8 %gpr1, %gpr2 |14|000|rrrr|rrrr|
+
+			unsigned gpr2 = buffer[1]&0xf;
+
+			fpr (stream, "vst8 %s, %s",
+				regnames[(buffer[1]>>4)&0xf],
+				regnames[gpr2]);
+
+			break;
+		}
+
+		case 0x71: {
+			// Specification from the
+			// instruction set manual:
+			// vst16 %gpr1, %gpr2 |14|001|rrrr|rrrr|
+
+			unsigned gpr2 = buffer[1]&0xf;
+
+			fpr (stream, "vst16 %s, %s",
+				regnames[(buffer[1]>>4)&0xf],
+				regnames[gpr2]);
+
+			break;
+		}
+
+		case 0x72: {
+			// Specification from the
+			// instruction set manual:
+			// vst32 %gpr1, %gpr2 |14|010|rrrr|rrrr|
+
+			unsigned gpr2 = buffer[1]&0xf;
+
+			fpr (stream, "vst32 %s, %s",
+				regnames[(buffer[1]>>4)&0xf],
+				regnames[gpr2]);
+
+			break;
+		}
+
 		case 0xf8: {
 			// Specification from the
 			// instruction set manual:
