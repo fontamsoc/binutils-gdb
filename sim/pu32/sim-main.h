@@ -135,7 +135,7 @@ struct sim_state {
 #define PU32_INTRCHECK_STACK_SIZE	PAGE_SIZE
 #define PU32_CORETHREAD_STACK_SIZE	PAGE_SIZE
 
-#define KERNELADDR         0x4000
+#define KERNELADDR         0x8000
 #define PARKPUSZ           24
 #define PARKPU_ADDR        (KERNELADDR - PARKPUSZ)
 #define PARKPU_RESUME_ADDR (PARKPU_ADDR +  10)
