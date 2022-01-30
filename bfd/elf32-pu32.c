@@ -488,6 +488,28 @@ static int pu32_elf_relocate_section (
 	return true;
 }
 
+#define PRSTATUS_SIZE                   144
+#define PRSTATUS_OFFSET_PR_CURSIG       12
+#define PRSTATUS_OFFSET_PR_PID          24
+#define PRSTATUS_OFFSET_PR_REG          72
+#define ELF_GREGSET_T_SIZE              68
+
+// Support for core dump NOTE sections.
+static bool elf_pu32_grok_prstatus (bfd *abfd, Elf_Internal_Note *note) {
+	switch (note->descsz) {
+		default:
+			return false;
+
+		case PRSTATUS_SIZE: // sizeof(struct elf_prstatus) on Linux PU32.
+			elf_tdata (abfd)->core->signal = bfd_get_16 (abfd, note->descdata + PRSTATUS_OFFSET_PR_CURSIG); // pr_cursig
+			elf_tdata (abfd)->core->lwpid = bfd_get_32 (abfd, note->descdata + PRSTATUS_OFFSET_PR_PID); // pr_pid
+			break;
+	}
+
+	// Make a ".reg/999" section.
+	return _bfd_elfcore_make_pseudosection (abfd, ".reg", ELF_GREGSET_T_SIZE, note->descpos + PRSTATUS_OFFSET_PR_REG);
+}
+
 // Name of the dynamic interpreter; this is put in section .interp .
 #define ELF_DYNAMIC_INTERPRETER "/lib/ld.so.1"
 
@@ -909,6 +931,8 @@ static bool pu32_elf_finish_dynamic_sections (
 #define bfd_elf32_bfd_reloc_type_lookup pu32_reloc_type_lookup
 #define bfd_elf32_bfd_reloc_name_lookup pu32_reloc_name_lookup
 #define elf_backend_relocate_section pu32_elf_relocate_section
+
+#define elf_backend_grok_prstatus elf_pu32_grok_prstatus
 
 // Dynamic relocation related API.
 #define elf_backend_plt_not_loaded 1

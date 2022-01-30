@@ -18,4 +18,4 @@ enum pu32_regnum {
 
 #define PU32_NUM_REGS 17
 
-#endif /* pu32-tdep.h */
+#endif /* PU32_TDEP_H */

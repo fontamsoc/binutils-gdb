@@ -245,6 +245,8 @@ moxie-*-elf | moxie-*-moxiebox | moxie-*-rtems*)
 pu32-*-*)
 	gdb_target_obs="pu32-tdep.o"
 	gdb_sim=../sim/pu32/libsim.a
+	# Target: PU32 machine running Linux
+	gdb_target_obs="pu32-linux-tdep.o linux-tdep.o solib-svr4.o ${gdb_target_obs}"
 	;;
 
 h8300-*-*)

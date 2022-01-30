@@ -17,6 +17,7 @@
 #include "language.h"
 #include "arch-utils.h"
 #include "regcache.h"
+#include "regset.h"
 #include "trad-frame.h"
 #include "dis-asm.h"
 #include "record.h"
@@ -877,6 +878,25 @@ static CORE_ADDR pu32_unwind_pc (
 	return frame_unwind_register_unsigned (next_frame, PU32_PC_REGNUM);
 }
 
+static const struct regcache_map_entry pu32_gregmap[] = {
+	{ PU32_NUM_REGS, 0, sizeof(uint32_t) },
+	{ 0 }
+};
+
+static const struct regset pu32_gregset = {
+	pu32_gregmap,
+	regcache_supply_regset,
+	regcache_collect_regset,
+};
+
+static void pu32_iterate_over_regset_sections (
+	struct gdbarch *gdbarch,
+	iterate_over_regset_sections_cb *cb,
+	void *cb_data,
+	const struct regcache *regcache) {
+	cb (".reg", PU32_NUM_REGS * sizeof(uint32_t), PU32_NUM_REGS * sizeof(uint32_t), &pu32_gregset, NULL, cb_data);
+}
+
 // Given a GDB frame, determine the address of the calling function's frame.
 // This will be used to create a new GDB frame struct.
 static void pu32_frame_this_id (
@@ -1092,6 +1112,8 @@ static struct gdbarch *pu32_gdbarch_init (
 	// TODO: set_gdbarch_push_dummy_call (gdbarch, pu32_push_dummy_call);
 
 	set_gdbarch_unwind_pc (gdbarch, pu32_unwind_pc);
+
+	set_gdbarch_iterate_over_regset_sections (gdbarch, pu32_iterate_over_regset_sections);
 
 	// Hook in ABI-specific overrides, if they have been registered.
 	gdbarch_init_osabi (info, gdbarch);
