@@ -1023,7 +1023,7 @@ case "${target}" in
   moxie-*-*)
     noconfigdirs="$noconfigdirs"
     ;;
-  pu32-*-*)
+  pu32*-*-*)
     noconfigdirs="$noconfigdirs"
     ;;
   h8300*-*-*)

@@ -504,7 +504,7 @@ case "${targ}" in
     targ_defvec=moxie_elf32_le_vec
     ;;
 
-  pu32-*-elf)
+  pu32*-*-*)
     targ_defvec=pu32_elf32_vec
     ;;
 

@@ -271,7 +271,7 @@ frv-*-*)		targ_emul=elf32frv
 ft32-*-*)		targ_emul=elf32ft32
 			targ_extra_ofiles=ldelfgen.o
 			;;
-pu32-*-*)		targ_emul=elf32pu32
+pu32*-*-*)		targ_emul=elf32pu32
 			;;
 h8300-*-elf* | h8300-*-rtems*)
 			targ_emul=h8300elf;
