@@ -13,7 +13,9 @@
 #include "inferior.h"
 #include "symfile.h"
 #include "objfiles.h"
+#include "linux-tdep.h"
 #include "osabi.h"
+#include "solib-svr4.h"
 #include "language.h"
 #include "arch-utils.h"
 #include "regcache.h"
@@ -1062,29 +1064,7 @@ static struct frame_id pu32_dummy_id (
 		get_frame_pc (this_frame));
 }
 
-// Allocate and initialize the pu32 gdbarch object.
-static struct gdbarch *pu32_gdbarch_init (
-	struct gdbarch_info info,
-	struct gdbarch_list *arches) {
-
-	#if defined(PU32_DEBUG)
-	fprintf_unfiltered (
-		gdb_stdout,
-		"pu32-gdb: %s\n",
-		__FUNCTION__);
-	#endif
-
-	struct gdbarch *gdbarch;
-	struct gdbarch_tdep *tdep;
-
-	// If there is already a candidate, use it.
-	arches = gdbarch_list_lookup_by_info (arches, &info);
-	if (arches != NULL)
-		return arches->gdbarch;
-
-	// Allocate space for the new architecture.
-	tdep = XCNEW (struct gdbarch_tdep);
-	gdbarch = gdbarch_alloc (&info, tdep);
+static void pu32_gdbarch_config (struct gdbarch *gdbarch) {
 
 	set_gdbarch_wchar_bit (gdbarch, 32);
 	set_gdbarch_wchar_signed (gdbarch, 0);
@@ -1115,9 +1095,6 @@ static struct gdbarch *pu32_gdbarch_init (
 
 	set_gdbarch_iterate_over_regset_sections (gdbarch, pu32_iterate_over_regset_sections);
 
-	// Hook in ABI-specific overrides, if they have been registered.
-	gdbarch_init_osabi (info, gdbarch);
-
 	// Hook in the default unwinders.
 	frame_unwind_append_unwinder (gdbarch, &pu32_frame_unwind);
 
@@ -1129,8 +1106,50 @@ static struct gdbarch *pu32_gdbarch_init (
 
 	// Support reverse debugging.
 	set_gdbarch_process_record (gdbarch, pu32_process_record);
+}
+
+// Allocate and initialize the pu32 gdbarch object.
+static struct gdbarch *pu32_gdbarch_init (
+	struct gdbarch_info info,
+	struct gdbarch_list *arches) {
+
+	#if defined(PU32_DEBUG)
+	fprintf_unfiltered (
+		gdb_stdout,
+		"pu32-gdb: %s\n",
+		__FUNCTION__);
+	#endif
+
+	struct gdbarch *gdbarch;
+	struct gdbarch_tdep *tdep;
+
+	// If there is already a candidate, use it.
+	arches = gdbarch_list_lookup_by_info (arches, &info);
+	if (arches != NULL)
+		return arches->gdbarch;
+
+	// Allocate space for the new architecture.
+	tdep = XCNEW (struct gdbarch_tdep);
+	gdbarch = gdbarch_alloc (&info, tdep);
+
+	// Hook in ABI-specific overrides, if they have been registered.
+	gdbarch_init_osabi (info, gdbarch);
+
+	pu32_gdbarch_config (gdbarch);
 
 	return gdbarch;
+}
+
+static void pu32_linux_init_osabi (struct gdbarch_info info, struct gdbarch *gdbarch) {
+
+	linux_init_abi (info, gdbarch, 0);
+
+	set_gdbarch_fetch_tls_load_module_address (gdbarch, svr4_fetch_objfile_link_map);
+	set_gdbarch_skip_trampoline_code (gdbarch, find_solib_trampoline_target);
+
+	set_solib_svr4_fetch_link_map_offsets (gdbarch, svr4_ilp32_fetch_link_map_offsets);
+
+	pu32_gdbarch_config (gdbarch);
 }
 
 void _initialize_pu32_tdep ();
@@ -1141,6 +1160,8 @@ void _initialize_pu32_tdep ();
 void
 _initialize_pu32_tdep ()
 {
+	gdbarch_register_osabi (bfd_arch_pu32, 0, GDB_OSABI_LINUX, pu32_linux_init_osabi);
+
 	// Reserve file-descriptor numbers used by target sim.
 	#define PU32_RESERVED_FDS 8 /* must match sim/pu32/sim-main.h */
 	int devnullfd = open("/dev/null", O_RDWR);
