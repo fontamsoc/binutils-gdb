@@ -223,7 +223,7 @@ static void intrthread (unsigned coreid) {
 				sim_stopped, SIM_SIGABRT);
 		}
 		if (intrfds[coreid][INTRSYNC_POLL_IDX].revents&POLL_EVENTS_FLAGS) {
-			char intrid;
+			signed char intrid;
 			while (read (intrfds[coreid][INTRSYNC_POLL_IDX].fd, &intrid, 1) == -1) {
 				if (errno == EINTR)
 					continue;
