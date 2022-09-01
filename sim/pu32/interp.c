@@ -1342,7 +1342,7 @@ void sim_engine_run (
 			case 0xf4: {
 				// Specification from the
 				// instruction set manual:
-				// vld8 %gpr1, %gpr2 |14|100|rrrr|rrrr|
+				// ld8v %gpr1, %gpr2 |14|100|rrrr|rrrr|
 				// ld8  %gpr1, %gpr2 |30|100|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
@@ -1360,7 +1360,7 @@ void sim_engine_run (
 			case 0xf5: {
 				// Specification from the
 				// instruction set manual:
-				// vld16 %gpr1, %gpr2 |14|101|rrrr|rrrr|
+				// ld16v %gpr1, %gpr2 |14|101|rrrr|rrrr|
 				// ld16  %gpr1, %gpr2 |30|101|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
@@ -1378,7 +1378,7 @@ void sim_engine_run (
 			case 0xf6: {
 				// Specification from the
 				// instruction set manual:
-				// vld32 %gpr1, %gpr2 |14|110|rrrr|rrrr|
+				// ld32v %gpr1, %gpr2 |14|110|rrrr|rrrr|
 				// ld32  %gpr1, %gpr2 |30|110|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
@@ -1396,7 +1396,7 @@ void sim_engine_run (
 			case 0xf0: {
 				// Specification from the
 				// instruction set manual:
-				// vst8 %gpr1, %gpr2 |14|000|rrrr|rrrr|
+				// st8v %gpr1, %gpr2 |14|000|rrrr|rrrr|
 				// st8  %gpr1, %gpr2 |30|000|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
@@ -1415,7 +1415,7 @@ void sim_engine_run (
 			case 0xf1: {
 				// Specification from the
 				// instruction set manual:
-				// vst16 %gpr1, %gpr2 |14|001|rrrr|rrrr|
+				// st16v %gpr1, %gpr2 |14|001|rrrr|rrrr|
 				// st16  %gpr1, %gpr2 |30|001|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);
@@ -1434,7 +1434,7 @@ void sim_engine_run (
 			case 0xf2: {
 				// Specification from the
 				// instruction set manual:
-				// vst32 %gpr1, %gpr2 |14|010|rrrr|rrrr|
+				// st32v %gpr1, %gpr2 |14|010|rrrr|rrrr|
 				// st32  %gpr1, %gpr2 |30|010|rrrr|rrrr|
 
 				unsigned gpr1 = (inst1 >> 4);

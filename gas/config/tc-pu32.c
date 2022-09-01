@@ -155,13 +155,13 @@ void md_begin (void) {
 	str_hash_insert (opcode_htab, "st16", (void*)0xf1, 0);
 	str_hash_insert (opcode_htab, "st32", (void*)0xf2, 0);
 	str_hash_insert (opcode_htab, "st", (void*)0xfff2, 0);
-	str_hash_insert (opcode_htab, "vld8", (void*)0x74, 0);
-	str_hash_insert (opcode_htab, "vld16", (void*)0x75, 0);
-	str_hash_insert (opcode_htab, "vld32", (void*)0x76, 0);
+	str_hash_insert (opcode_htab, "ld8v", (void*)0x74, 0);
+	str_hash_insert (opcode_htab, "ld16v", (void*)0x75, 0);
+	str_hash_insert (opcode_htab, "ld32v", (void*)0x76, 0);
 	str_hash_insert (opcode_htab, "vld", (void*)0xff76, 0);
-	str_hash_insert (opcode_htab, "vst8", (void*)0x70, 0);
-	str_hash_insert (opcode_htab, "vst16", (void*)0x71, 0);
-	str_hash_insert (opcode_htab, "vst32", (void*)0x72, 0);
+	str_hash_insert (opcode_htab, "st8v", (void*)0x70, 0);
+	str_hash_insert (opcode_htab, "st16v", (void*)0x71, 0);
+	str_hash_insert (opcode_htab, "st32v", (void*)0x72, 0);
 	str_hash_insert (opcode_htab, "vst", (void*)0xff72, 0);
 	str_hash_insert (opcode_htab, "ldst8", (void*)0xf8, 0);
 	str_hash_insert (opcode_htab, "ldst16", (void*)0xf9, 0);
@@ -417,13 +417,13 @@ void md_assemble (char *str) {
 		case 0xf1: // st16
 		case 0xf2: // st32
 		case 0xfff2: // st
-		case 0x74: // vld8
-		case 0x75: // vld16
-		case 0x76: // vld32
+		case 0x74: // ld8v
+		case 0x75: // ld16v
+		case 0x76: // ld32v
 		case 0xff76: // vld
-		case 0x70: // vst8
-		case 0x71: // vst16
-		case 0x72: // vst32
+		case 0x70: // st8v
+		case 0x71: // st16v
+		case 0x72: // st32v
 		case 0xff72: // vst
 		case 0xf8: // ldst8
 		case 0xf9: // ldst16

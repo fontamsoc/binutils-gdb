@@ -472,12 +472,12 @@ static std::vector<CORE_ADDR> pu32_software_single_step (
 		case 0xf0: // st8
 		case 0xf1: // st16
 		case 0xf2: // st32
-		case 0x74: // vld8
-		case 0x75: // vld16
-		case 0x76: // vld32
-		case 0x70: // vst8
-		case 0x71: // vst16
-		case 0x72: // vst32
+		case 0x74: // ld8v
+		case 0x75: // ld16v
+		case 0x76: // ld32v
+		case 0x70: // st8v
+		case 0x71: // st16v
+		case 0x72: // st32v
 		case 0xf8: // ldst8
 		case 0xf9: // ldst16
 		case 0xfa: // ldst32
@@ -666,9 +666,9 @@ static int pu32_process_record (
 		case 0xf4: // ld8
 		case 0xf5: // ld16
 		case 0xf6: // ld32
-		case 0x74: // vld8
-		case 0x75: // vld16
-		case 0x76: // vld32
+		case 0x74: // ld8v
+		case 0x75: // ld16v
+		case 0x76: // ld32v
 		case 0x28: // getsysopcode
 		case 0x29: // getuip
 		case 0x79: // setkgpr
@@ -691,7 +691,7 @@ static int pu32_process_record (
 			break;
 
 		case 0xf0: // st8
-		case 0x70: /* vst8 */ {
+		case 0x70: /* st8v */ {
 			uint32_t tmpu32;
 			regcache->raw_read (inst&0xf, (gdb_byte *)&tmpu32);
 			if (record_full_arch_list_add_mem (tmpu32, 1))
@@ -700,7 +700,7 @@ static int pu32_process_record (
 		}
 
 		case 0xf1: // st16
-		case 0x71: /* vst16 */ {
+		case 0x71: /* st16v */ {
 			uint32_t tmpu32;
 			regcache->raw_read (inst&0xf, (gdb_byte *)&tmpu32);
 			if (record_full_arch_list_add_mem (tmpu32, 2))
@@ -709,7 +709,7 @@ static int pu32_process_record (
 		}
 
 		case 0xf2: // st32
-		case 0x72: /* vst32 */ {
+		case 0x72: /* st32v */ {
 			uint32_t tmpu32;
 			regcache->raw_read (inst&0xf, (gdb_byte *)&tmpu32);
 			if (record_full_arch_list_add_mem (tmpu32, 4))
