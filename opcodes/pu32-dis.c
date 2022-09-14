@@ -7,7 +7,7 @@
 
 static const char * regnames[16] = {
 	"%sp", "%1", "%2", "%3", "%4", "%5", "%6", "%7",
-	"%8", "%9", "%10", "%11", "%12", "%sr", "%fp", "%rp"
+	"%8", "%9", "%tp", "%11", "%12", "%sr", "%fp", "%rp"
 };
 
 int print_insn_pu32 (bfd_vma addr, struct disassemble_info * info) {

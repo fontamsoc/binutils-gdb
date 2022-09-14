@@ -7,11 +7,9 @@
 
 const char *md_shortopts = "";
 
-static int fixed_tp_reg = 0;
 static int relax = 0;
 
 struct option md_longopts[] = {
-	{"mfixed-%10", no_argument, &fixed_tp_reg, 1},
 	{"mrelax", no_argument, &relax, 1},
 };
 
@@ -23,7 +21,6 @@ int md_parse_option (int c ATTRIBUTE_UNUSED, const char *arg ATTRIBUTE_UNUSED) {
 
 void md_show_usage (FILE *fp) {
 	fprintf (fp, _("PU32 assembler options:\n"));
-	fprintf (fp, _("  -mfixed-%%10             enable use of %%tp (task pointer register) as %%10\n"));
 	fprintf (fp, _("  -mrelax                 enable relaxation\n"));
 }
 
@@ -263,13 +260,6 @@ void md_assemble (char *str) {
 			s += 2;
 
 		} else if (s[0] == 't' && s[1] == 'p') {
-
-			if (!fixed_tp_reg) {
-
-				as_bad (_("use -mfixed-%%10"));
-
-				goto error;
-			}
 
 			reg = 10;
 
