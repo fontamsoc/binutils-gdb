@@ -155,11 +155,11 @@ void md_begin (void) {
 	str_hash_insert (opcode_htab, "ld8v", (void*)0x74, 0);
 	str_hash_insert (opcode_htab, "ld16v", (void*)0x75, 0);
 	str_hash_insert (opcode_htab, "ld32v", (void*)0x76, 0);
-	str_hash_insert (opcode_htab, "vld", (void*)0xff76, 0);
+	str_hash_insert (opcode_htab, "ldv", (void*)0xff76, 0);
 	str_hash_insert (opcode_htab, "st8v", (void*)0x70, 0);
 	str_hash_insert (opcode_htab, "st16v", (void*)0x71, 0);
 	str_hash_insert (opcode_htab, "st32v", (void*)0x72, 0);
-	str_hash_insert (opcode_htab, "vst", (void*)0xff72, 0);
+	str_hash_insert (opcode_htab, "stv", (void*)0xff72, 0);
 	str_hash_insert (opcode_htab, "ldst8", (void*)0xf8, 0);
 	str_hash_insert (opcode_htab, "ldst16", (void*)0xf9, 0);
 	str_hash_insert (opcode_htab, "ldst32", (void*)0xfa, 0);
@@ -410,11 +410,11 @@ void md_assemble (char *str) {
 		case 0x74: // ld8v
 		case 0x75: // ld16v
 		case 0x76: // ld32v
-		case 0xff76: // vld
+		case 0xff76: // ldv
 		case 0x70: // st8v
 		case 0x71: // st16v
 		case 0x72: // st32v
-		case 0xff72: // vst
+		case 0xff72: // stv
 		case 0xf8: // ldst8
 		case 0xf9: // ldst16
 		case 0xfa: // ldst32
