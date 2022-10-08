@@ -34,6 +34,8 @@
 #define PU32_REG_KSL (PU32_REG_FAULTREASON + 1)
 #define PU32_REGCNT (PU32_REG_KSL + 1)
 
+#define PU32_OP_NOTAVAIL 0x40
+
 #define PU32_FLAGS_setasid		0x1
 #define PU32_FLAGS_settimer		0x2
 #define PU32_FLAGS_settlb		0x4

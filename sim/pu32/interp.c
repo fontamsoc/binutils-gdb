@@ -519,6 +519,7 @@ void sim_engine_run (
 		// Used within "m.interp.c" .
 		void dopfault (pu32FaultReason r, uint32_t a) {
 			scpustateregs[PU32_REG_FAULTREASON] = r;
+			scpustateregs[PU32_REG_SYSOPCODE] = PU32_OP_NOTAVAIL;
 			scpustateregs[PU32_REG_FAULTADDR] = a;
 			scpustate->curctx = 0;
 			clraddrtranslcache[coreid]._ = -1;
@@ -567,6 +568,7 @@ void sim_engine_run (
 				intrpending[coreid][TIMER_POLL_IDX] = 0;
 
 				scpustateregs[PU32_REG_FAULTREASON] = pu32TimerIntr;
+				scpustateregs[PU32_REG_SYSOPCODE] = PU32_OP_NOTAVAIL;
 				scpustate->curctx = 0;
 				clraddrtranslcache[coreid]._ = -1;
 
@@ -588,6 +590,7 @@ void sim_engine_run (
 				intrpending[coreid][INTRCTRL_PENDING_IDX] = 0;
 
 				scpustateregs[PU32_REG_FAULTREASON] = pu32ExtIntr;
+				scpustateregs[PU32_REG_SYSOPCODE] = PU32_OP_NOTAVAIL;
 				scpustate->curctx = 0;
 				clraddrtranslcache[coreid]._ = -1;
 
@@ -609,6 +612,7 @@ void sim_engine_run (
 				intrpending[coreid][STDIN_POLL_IDX] = 0;
 
 				scpustateregs[PU32_REG_FAULTREASON] = pu32ExtIntr;
+				scpustateregs[PU32_REG_SYSOPCODE] = PU32_OP_NOTAVAIL;
 				scpustate->curctx = 0;
 				clraddrtranslcache[coreid]._ = -1;
 			}
@@ -1705,6 +1709,7 @@ void sim_engine_run (
 						if (scpustate->curctx && !scpustate->skipintrhandling
 							&& !(scpustateregs[PU32_REG_FLAGS] & PU32_FLAGS_disPreemptIntr)) {
 							scpustateregs[PU32_REG_FAULTREASON] = pu32PreemptIntr;
+							scpustateregs[PU32_REG_SYSOPCODE] = PU32_OP_NOTAVAIL;
 							scpustate->curctx = 0;
 							clraddrtranslcache[coreid]._ = -1;
 						}
