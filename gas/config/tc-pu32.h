@@ -19,6 +19,11 @@ extern void md_convert_frag (bfd *, segT, fragS *);
 #define md_relax_frag pu32_relax_frag
 extern long pu32_relax_frag (segT, fragS *, long);
 
+#define HANDLE_ALIGN(f) pu32_handle_align (f)
+extern void pu32_handle_align (fragS *);
+#define NOP_OPCODE 0xc7
+#define MAX_MEM_FOR_RS_ALIGN_CODE 1
+
 #define MD_PCREL_FROM_SECTION(FIX, SEC) md_pcrel_from (FIX)
 extern long md_pcrel_from (struct fix *);
 

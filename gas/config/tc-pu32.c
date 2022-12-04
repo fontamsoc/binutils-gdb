@@ -1466,3 +1466,21 @@ arelent *tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS *fixP) {
 
 	return rel;
 }
+
+// This is called from HANDLE_ALIGN.
+// It fills-in the content of an rs_align_code fragment.
+void pu32_handle_align (fragS *fragP) {
+
+	if (fragP->fr_type != rs_align_code)
+		return;
+
+	fragP->fr_var = 2; // Size in bytes of instruction nop.
+
+	unsigned long bytes = fragP->fr_next->fr_address - fragP->fr_address - fragP->fr_fix;
+	if (!(bytes & 1))
+		return;
+
+	char *p = fragP->fr_literal + fragP->fr_fix;
+	p[0] = 0;
+	fragP->fr_fix += 1;
+}
