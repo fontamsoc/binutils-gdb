@@ -793,6 +793,11 @@ void sim_engine_run (
 				break;
 			}
 
+			union {
+				uint32_t i;
+				float f;
+			} farg1, farg2, frslt;
+
 			case 0xd8: {
 				// Specification from the
 				// instruction set manual:
@@ -801,9 +806,10 @@ void sim_engine_run (
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
 
-				scpustateregs[gpr1+curctxgproffset] =
-					((float)scpustateregs[gpr1+curctxgproffset] +
-						(float)scpustateregs[gpr2+curctxgproffset]);
+				farg1.i = scpustateregs[gpr1+curctxgproffset];
+				farg2.i = scpustateregs[gpr2+curctxgproffset];
+				frslt.f = (farg1.f + farg2.f);
+				scpustateregs[gpr1+curctxgproffset] = frslt.i;
 
 				scpustateregs[PU32_REG_PC+curctxgproffset] += 2;
 
@@ -818,9 +824,10 @@ void sim_engine_run (
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
 
-				scpustateregs[gpr1+curctxgproffset] =
-					((float)scpustateregs[gpr1+curctxgproffset] -
-						(float)scpustateregs[gpr2+curctxgproffset]);
+				farg1.i = scpustateregs[gpr1+curctxgproffset];
+				farg2.i = scpustateregs[gpr2+curctxgproffset];
+				frslt.f = (farg1.f - farg2.f);
+				scpustateregs[gpr1+curctxgproffset] = frslt.i;
 
 				scpustateregs[PU32_REG_PC+curctxgproffset] += 2;
 
@@ -835,9 +842,10 @@ void sim_engine_run (
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
 
-				scpustateregs[gpr1+curctxgproffset] =
-					((float)scpustateregs[gpr1+curctxgproffset] *
-						(float)scpustateregs[gpr2+curctxgproffset]);
+				farg1.i = scpustateregs[gpr1+curctxgproffset];
+				farg2.i = scpustateregs[gpr2+curctxgproffset];
+				frslt.f = (farg1.f * farg2.f);
+				scpustateregs[gpr1+curctxgproffset] = frslt.i;
 
 				scpustateregs[PU32_REG_PC+curctxgproffset] += 2;
 
@@ -852,9 +860,10 @@ void sim_engine_run (
 				unsigned gpr1 = (inst1 >> 4);
 				unsigned gpr2 = (inst1 & 0xf);
 
-				scpustateregs[gpr1+curctxgproffset] =
-					((float)scpustateregs[gpr1+curctxgproffset] /
-						(float)scpustateregs[gpr2+curctxgproffset]);
+				farg1.i = scpustateregs[gpr1+curctxgproffset];
+				farg2.i = scpustateregs[gpr2+curctxgproffset];
+				frslt.f = (farg1.f / farg2.f);
+				scpustateregs[gpr1+curctxgproffset] = frslt.i;
 
 				scpustateregs[PU32_REG_PC+curctxgproffset] += 2;
 
