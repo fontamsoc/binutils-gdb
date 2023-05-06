@@ -12,8 +12,6 @@
 #define _stringify(x) #x
 #define stringify(x) _stringify(x)
 
-#define SIM_HAVE_COMMON_SIM_CPU
-
 #include "sim-basics.h"
 #include "sim-base.h"
 #include "bfd.h"
