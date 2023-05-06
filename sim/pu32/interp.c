@@ -2662,11 +2662,11 @@ static void corethread (unsigned coreid) {
 	sim_engine_run (((SIM_DESC){0}), coreid, ((int){0}), ((int){0}));
 }
 
-int sim_read (
+uint64_t sim_read (
 	SIM_DESC _ /* ignore */,
-	SIM_ADDR x,
+	uint64_t x,
 	void *buf,
-	int len) {
+	uint64_t len) {
 	#if defined(PU32_DEBUG)
 	sim_io_eprintf (sd,
 		"pu32-sim: %s: vaddr == 0x%x; len == %u",
@@ -2706,11 +2706,11 @@ int sim_read (
 	return count;
 }
 
-int sim_write (
+uint64_t sim_write (
 	SIM_DESC _ /* ignore */,
-	SIM_ADDR x,
+	uint64_t x,
 	const void *buf,
-	int len) {
+	uint64_t len) {
 	#if defined(PU32_DEBUG)
 	sim_io_eprintf (sd,
 		"pu32-sim: %s: vaddr == 0x%x; len == %u",
