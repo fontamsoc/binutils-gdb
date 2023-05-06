@@ -4,10 +4,7 @@
 #ifndef SIM_MAIN_H
 #define SIM_MAIN_H
 
-#define PU32_CPUCNT 8
-#if PU32_CPUCNT > 1
-#define WITH_SMP PU32_CPUCNT
-#endif
+#define WITH_SMP 8
 
 #define _stringify(x) #x
 #define stringify(x) _stringify(x)

@@ -161,34 +161,34 @@ static INLINE void *sim_core_translate (
 
 static SIM_OPEN_KIND sim_open_kind;
 
-static uint32_t pgds[PU32_CPUCNT];
+static uint32_t pgds[WITH_SMP];
 
 static struct termios ttyconfig, savedttyconfig;
 
 // Pipe file descriptors used to buffer the id of interrupts.
-static volatile int intctrlpipe[PU32_CPUCNT][2];
+static volatile int intctrlpipe[WITH_SMP][2];
 
 // Pipe file descriptors used for buffering data from STDIN.
 static volatile int stdinpipe[2];
 
 // Pipe file descriptors used to synchronize with intrthread().
-static volatile int intrsyncpipe[PU32_CPUCNT][2];
+static volatile int intrsyncpipe[WITH_SMP][2];
 
 // Pipe file descriptors used to synchronize with intrthread() when halting.
-static volatile int haltsyncpipe[PU32_CPUCNT][2];
+static volatile int haltsyncpipe[WITH_SMP][2];
 
 // File descriptors for each context %timer.
-static volatile int timerfd[PU32_CPUCNT];
+static volatile int timerfd[WITH_SMP];
 
 // intrthread() thread IDs.
-static int intrthreadid[PU32_CPUCNT];
+static int intrthreadid[WITH_SMP];
 // corethread() thread IDs.
-static int corethreadid[PU32_CPUCNT];
+static int corethreadid[WITH_SMP];
 
 // intrthread() stacks.
-static void *intrthread_stack[PU32_CPUCNT];
+static void *intrthread_stack[WITH_SMP];
 // corethread() stacks.
-static void *corethread_stack[PU32_CPUCNT];
+static void *corethread_stack[WITH_SMP];
 
 // File descriptor nbr to be used by poll()
 // and dup()ed from STDIN_FILENO.
@@ -206,10 +206,10 @@ static void *corethread_stack[PU32_CPUCNT];
 #define STDIN_POLL_IDX (TIMER_POLL_IDX+1) /* last in intrfds[][] so to be easily ignored */
 #define INTRCTRL_PENDING_IDX (STDIN_POLL_IDX+1)
 
-static volatile unsigned intrpending[PU32_CPUCNT][POLL_NFDS+1/*INTRCTRL_PENDING_IDX*/];
-static volatile struct pollfd intrfds[PU32_CPUCNT][POLL_NFDS];
+static volatile unsigned intrpending[WITH_SMP][POLL_NFDS+1/*INTRCTRL_PENDING_IDX*/];
+static volatile struct pollfd intrfds[WITH_SMP][POLL_NFDS];
 
-static volatile unsigned haltedcore[PU32_CPUCNT];
+static volatile unsigned haltedcore[WITH_SMP];
 
 #define POLL_EVENTS_FLAGS (POLLIN | POLLPRI | POLLRDNORM | POLLRDBAND)
 
@@ -450,7 +450,7 @@ static union {
 		uint32_t ldinst :1;
 	};
 	uint32_t _;
-} clraddrtranslcache[PU32_CPUCNT];
+} clraddrtranslcache[WITH_SMP];
 
 #include "p.interp.c"
 
@@ -2775,7 +2775,7 @@ static SIM_RC pu32_option_handler (
 					perror("strtol");
 					return SIM_RC_FAIL;
 				}
-				if (!corecnt || corecnt > PU32_CPUCNT) {
+				if (!corecnt || corecnt > WITH_SMP) {
 					fprintf(stderr, "invalid number of cores\n");
 					return SIM_RC_FAIL;
 				}
