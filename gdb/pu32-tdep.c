@@ -131,7 +131,7 @@ static enum return_value_convention pu32_return_value (
 		__FUNCTION__);
 	#endif
 
-	if (TYPE_LENGTH (valtype) > 4)
+	if (valtype->length() > 4)
 		return RETURN_VALUE_STRUCT_CONVENTION;
 	else {
 		if (readbuf != NULL)
