@@ -2996,8 +2996,10 @@ SIM_DESC sim_open (
 		int pu32_reg_fetch (
 			sim_cpu *scpu,
 			int regno,
-			unsigned char *buf,
+			void *mem,
 			int length) {
+
+			unsigned char *buf = mem;
 
 			if ((unsigned int)regno < PU32_REGCNT) {
 
@@ -3033,8 +3035,10 @@ SIM_DESC sim_open (
 		int pu32_reg_store (
 			sim_cpu *scpu,
 			int regno,
-			unsigned char *buf,
+			const void *mem,
 			int length) {
+
+			const unsigned char *buf = mem;
 
 			if ((unsigned int)regno < PU32_REGCNT) {
 
