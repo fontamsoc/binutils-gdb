@@ -1133,7 +1133,7 @@ _initialize_pu32_tdep ()
 	gdbarch_register_osabi (bfd_arch_pu32, 0, GDB_OSABI_LINUX, pu32_linux_init_osabi);
 
 	// Reserve file-descriptor numbers used by target sim.
-	#define PU32_RESERVED_FDS 8 /* must match sim/pu32/sim-main.h */
+	#define PU32_RESERVED_FDS 8 /* must match sim/pu32/pu32-sim.h */
 	int devnullfd = open("/dev/null", O_RDWR);
 	if (devnullfd == -1) {
 		debug_printf (

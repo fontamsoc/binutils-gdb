@@ -40,6 +40,8 @@
 #include "sim-options.h"
 #include "sim-signal.h"
 
+#include "pu32-sim.h"
+
 // Uncomment to generate debug outputs.
 //#define PU32_DEBUG
 
