@@ -2665,7 +2665,7 @@ static void corethread (unsigned coreid) {
 int sim_read (
 	SIM_DESC _ /* ignore */,
 	SIM_ADDR x,
-	unsigned char *buf,
+	void *buf,
 	int len) {
 	#if defined(PU32_DEBUG)
 	sim_io_eprintf (sd,
@@ -2701,7 +2701,7 @@ int sim_read (
 			sim_core_find_mapping (
 				scpu, read_map, raddr, 1, read_transfer,
 				0 /*dont-abort*/);
-		buf[count] = *(uint8_t *)sim_core_translate(mapping, raddr);
+		((unsigned char *)buf)[count] = *(uint8_t *)sim_core_translate(mapping, raddr);
 	}
 	return count;
 }
@@ -2709,7 +2709,7 @@ int sim_read (
 int sim_write (
 	SIM_DESC _ /* ignore */,
 	SIM_ADDR x,
-	const unsigned char *buf,
+	const void *buf,
 	int len) {
 	#if defined(PU32_DEBUG)
 	sim_io_eprintf (sd,
@@ -2745,7 +2745,7 @@ int sim_write (
 			sim_core_find_mapping (
 				scpu, write_map, waddr, 1, write_transfer,
 				0 /*dont-abort*/);
-		*(uint8_t *)sim_core_translate(mapping, waddr) = buf[count];
+		*(uint8_t *)sim_core_translate(mapping, waddr) = ((const unsigned char *)buf)[count];
 	}
 	return count;
 }
