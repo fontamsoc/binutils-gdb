@@ -14,7 +14,6 @@
 
 #include "sim-basics.h"
 #include "sim-base.h"
-#include "bfd.h"
 
 #include <stdint.h>
 
