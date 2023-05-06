@@ -2811,7 +2811,7 @@ SIM_DESC sim_open (
 	SIM_ASSERT ((unsigned)POLL_NFDS <= 255);
 
 	if (sd)
-		return SIM_RC_FAIL;
+		return 0;
 
 	sd = sim_state_alloc (kind, cb);
 	SIM_ASSERT(STATE_MAGIC(sd) == SIM_MAGIC_NUMBER);
@@ -2830,12 +2830,12 @@ SIM_DESC sim_open (
 	// sim_cpu_alloc_all() needs to be called before sim_pre_argv_init().
 	if (sim_cpu_alloc_all (sd, PU32_CPUCNT) != SIM_RC_OK) {
 		free_state();
-		return SIM_RC_FAIL;
+		return 0;
 	}
 
 	if (sim_pre_argv_init (sd, argv[0]) != SIM_RC_OK) {
 		free_state();
-		return SIM_RC_FAIL;
+		return 0;
 	}
 
 	sim_add_option_table (sd, NULL, pu32_options);
@@ -2844,19 +2844,19 @@ SIM_DESC sim_open (
 	// for us, so we silently return.
 	if (sim_parse_args (sd, argv) != SIM_RC_OK) {
 		free_state();
-		return SIM_RC_FAIL;
+		return 0;
 	}
 
 	// Configure/verify the target byte order
 	// and other runtime configuration options.
 	if (sim_config (sd) != SIM_RC_OK) {
 		free_state();
-		return SIM_RC_FAIL;
+		return 0;
 	}
 
 	if (sim_post_argv_init (sd) != SIM_RC_OK) {
 		free_state();
-		return SIM_RC_FAIL;
+		return 0;
 	}
 
 	sim_open_kind = kind;
@@ -2869,14 +2869,14 @@ SIM_DESC sim_open (
 			sim_io_eprintf(sd,
 				"pu32-gdb: %s: open(\"/dev/null\") failed\n",
 				__FUNCTION__);
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		for (unsigned i = 3; i < PU32_RESERVED_FDS; ++i) {
 			if (dup2(devnullfd, i) == -1) {
 				sim_io_eprintf(sd,
 					"pu32-gdb: %s: dup2(devnullfd, %u) failed\n",
 					__FUNCTION__, i);
-				return SIM_RC_FAIL;
+				return 0;
 			}
 		}
 	}
@@ -2903,26 +2903,26 @@ SIM_DESC sim_open (
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: retrieving STDOUT config failed\n",
 				__FUNCTION__);
-			return SIM_RC_FAIL;
+			return 0;
 		}
 	}
 	if (dup2(STDIN_FILENO, STDIN_DUP_FILENO) == -1) {
 		sim_io_eprintf(sd,
 			"pu32-sim: %s: dup2(STDIN_FILENO, STDIN_DUP_FILENO) failed\n",
 			__FUNCTION__);
-		return SIM_RC_FAIL;
+		return 0;
 	}
 	if (pipe((int *)stdinpipe) == -1) {
 		sim_io_eprintf(sd,
 			"pu32-sim: %s: pipe(stdinpipe) failed\n",
 			__FUNCTION__);
-		return SIM_RC_FAIL;
+		return 0;
 	}
 	if ((stdinpipe[0] = dup2(stdinpipe[0], PU32_BIOS_FD_STDIN)) != PU32_BIOS_FD_STDIN) {
 		sim_io_eprintf(sd,
 			"pu32-sim: %s: dup2(stdinpipe[0], PU32_BIOS_FD_STDIN) failed\n",
 			__FUNCTION__);
-		return SIM_RC_FAIL;
+		return 0;
 	}
 	fcntl(stdinpipe[0], F_SETFL, fcntl(stdinpipe[0], F_GETFL) | O_NONBLOCK);
 	fcntl(stdinpipe[1], F_SETFL, fcntl(stdinpipe[1], F_GETFL) | O_NONBLOCK);
@@ -2931,20 +2931,20 @@ SIM_DESC sim_open (
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: pipe(intctrlpipe[%u) failed\n",
 				__FUNCTION__, i);
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		fcntl(intctrlpipe[i][0], F_SETFL, fcntl(intctrlpipe[i][0], F_GETFL) | O_NONBLOCK);
 		if (pipe((int *)intrsyncpipe[i]) == -1) {
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: pipe(intrsyncpipe[%u]) failed\n",
 				__FUNCTION__, i);
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		if (pipe((int *)haltsyncpipe[i]) == -1) {
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: pipe(haltsyncpipe[%u]) failed\n",
 				__FUNCTION__, i);
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		int fd = timerfd_create(CLOCK_BOOTTIME, 0);
 		if (fd == -1) {
@@ -2952,7 +2952,7 @@ SIM_DESC sim_open (
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: timerfd_create(timerfd[%u]) failed\n",
 				__FUNCTION__, i);
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		timerfd[i] = -fd; // Negate to disable it as part of intrfds[].
 	}
@@ -2970,14 +2970,14 @@ SIM_DESC sim_open (
 				"pu32-sim: %s: open(\"%s\") failed\n",
 				__FUNCTION__, hdd);
 			free_state();
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		if (dup2(fd, PU32_BIOS_FD_STORAGEDEV) == -1) {
 			sim_io_eprintf(sd,
 				"pu32-sim: %s: dup2(%u, PU32_BIOS_FD_STORAGEDEV) failed\n",
 				__FUNCTION__, fd);
 			free_state();
-			return SIM_RC_FAIL;
+			return 0;
 		}
 	}
 
@@ -2987,7 +2987,7 @@ SIM_DESC sim_open (
 		0, 0);
 	if (states == MAP_FAILED) {
 		free_state();
-		return SIM_RC_FAIL;
+		return 0;
 	}
 
 	// CPU specific initialization.
@@ -3103,7 +3103,7 @@ SIM_DESC sim_open (
 		if (stack == MAP_FAILED) {
 			sim_io_eprintf (sd, "pu32-sim: %s: mmap(intrthread_stack) failed\n", __FUNCTION__);
 			free_state();
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		intrthread_stack[i] = stack;
 		// Allocate memory to be used for the stack of corethread(i).
@@ -3114,7 +3114,7 @@ SIM_DESC sim_open (
 		if (stack == MAP_FAILED) {
 			sim_io_eprintf (sd, "pu32-sim: %s: mmap(corethread_stack) failed\n", __FUNCTION__);
 			free_state();
-			return SIM_RC_FAIL;
+			return 0;
 		}
 		corethread_stack[i] = stack;
 	}
