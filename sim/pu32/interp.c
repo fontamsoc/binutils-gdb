@@ -47,7 +47,7 @@ static volatile SIM_DESC sd = 0;
 
 static void dumpregs (sim_cpu *scpu) {
 	SIM_DESC sd = CPU_STATE(scpu);
-	pu32state *scpustate = scpu->state;
+	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 	uint32_t *regs = scpustate->regs;
 	unsigned long o = (scpustate->curctx*PU32_GPRCNT);
 	sim_io_eprintf(sd,
@@ -83,7 +83,7 @@ static sim_core_mapping *sim_core_find_mapping (
 		sim_cia cia = CPU_PC_GET(scpu);
 		sim_io_eprintf(sd,
 			"pu32-sim: core%u: %u byte%s %s unmapped address 0x%lx at 0x%lx\n",
-			scpu->coreid, nr_bytes,
+			PU32_SIM_CPU(scpu)->coreid, nr_bytes,
 			(nr_bytes > 1) ? "s" : "",
 			(transfer == read_transfer) ? "read from" : "write to",
 			(unsigned long)addr,
@@ -107,8 +107,8 @@ static address_word sim_core_map_memory (
 	SIM_DESC sd = CPU_STATE(scpu);
 	if (addr & (PAGE_SIZE-1)) {
 		sim_io_eprintf (sd, "pu32-sim: core%u: %s: addr pagesize unaligned: addr == 0x%x\n",
-			scpu->coreid, __FUNCTION__, addr);
-		pu32state *scpustate = scpu->state;
+			PU32_SIM_CPU(scpu)->coreid, __FUNCTION__, addr);
+		pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 		dumpregs(scpu);
 		sim_engine_halt (
 			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
@@ -124,8 +124,8 @@ static address_word sim_core_map_memory (
 	}
 	if ((addr + (nr_bytes - 1)) < addr) {
 		sim_io_eprintf (sd, "pu32-sim: core%u: %s: (addr + nr_bytes) >= addr: addr == 0x%x, nr_bytes == %u\n",
-			scpu->coreid, __FUNCTION__, addr, nr_bytes);
-		pu32state *scpustate = scpu->state;
+			PU32_SIM_CPU(scpu)->coreid, __FUNCTION__, addr, nr_bytes);
+		pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 		dumpregs(scpu);
 		sim_engine_halt (
 			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
@@ -137,8 +137,8 @@ static address_word sim_core_map_memory (
 		MAP_SHARED|((fd == -1) ? MAP_ANONYMOUS : 0),
 		fd, pgoffset*PAGE_SIZE);
 	if (mmap_buffer == 0 || mmap_buffer == (void*)-1) /* MAP_FAILED */ {
-		sim_io_eprintf (sd, "pu32-sim: core%u: mmap() failed\n", scpu->coreid);
-		pu32state *scpustate = scpu->state;
+		sim_io_eprintf (sd, "pu32-sim: core%u: mmap() failed\n", PU32_SIM_CPU(scpu)->coreid);
+		pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 		dumpregs(scpu);
 		sim_engine_halt (
 			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
@@ -216,7 +216,7 @@ static volatile unsigned haltedcore[PU32_CPUCNT];
 // An intrthread() is spawned per core.
 static void intrthread (unsigned coreid) {
 	sim_cpu *scpu = STATE_CPU(sd, coreid);
-	pu32state *scpustate = scpu->state;
+	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 	volatile uint32_t *scpustateregs = scpustate->regs;
 	intrfds[coreid][INTRSYNC_POLL_IDX].fd = intrsyncpipe[coreid][0];
 	intrfds[coreid][INTRSYNC_POLL_IDX].events = POLL_EVENTS_FLAGS;
@@ -379,7 +379,7 @@ static uint64_t getclkperiod (unsigned coreid) {
 		perror("clock_getres()");
 		sim_io_eprintf (sd, "pu32-sim: clock_getres() failed\n");
 		sim_cpu *scpu = STATE_CPU(sd, coreid);
-		pu32state *scpustate = scpu->state;
+		pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 		sim_engine_halt (
 			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
@@ -395,7 +395,7 @@ static void restart_intrfds_poll (unsigned coreid, char intrid) {
 		sim_io_eprintf (sd, "pu32-sim: %s: write(intrsyncpipe[%u][1]) failed\n",
 			__FUNCTION__, coreid);
 		sim_cpu *scpu = STATE_CPU(sd, coreid);
-		pu32state *scpustate = scpu->state;
+		pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 		sim_engine_halt (
 			sd, scpu, scpu, scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
@@ -408,10 +408,10 @@ static void restart_intrfds_poll (unsigned coreid, char intrid) {
 		sim_io_eprintf (sd, "pu32-sim: %s: read(haltsyncpipe[%u][0]) failed\n",
 			__FUNCTION__, coreid);
 		sim_cpu *scpu = STATE_CPU(sd, coreid);
-		pu32state *scpustate = scpu->state;
+		pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 		sim_engine_halt (
 			sd, scpu, scpu,
-			scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+			PU32_SIM_CPU(scpu)->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 			sim_stopped, SIM_SIGABRT);
 	}
 }
@@ -419,8 +419,8 @@ static void restart_intrfds_poll (unsigned coreid, char intrid) {
 void pu32_cpu_exception_suspend (
 	SIM_DESC _ /* ignore */,
 	SIM_CPU *scpu, int exc) {
-	scpu->state->skipintrhandling = (exc == SIGTRAP);
-	restart_intrfds_poll(scpu->coreid, -STDIN_POLL_IDX);
+	PU32_SIM_CPU(scpu)->state->skipintrhandling = (exc == SIGTRAP);
+	restart_intrfds_poll(PU32_SIM_CPU(scpu)->coreid, -STDIN_POLL_IDX);
 	tcsetattr(STDOUT_FILENO, TCSADRAIN, &savedttyconfig);
 }
 
@@ -428,7 +428,7 @@ void pu32_cpu_exception_resume (
 	SIM_DESC _ /* ignore */,
 	SIM_CPU *scpu, int exc) {
 	tcsetattr(STDOUT_FILENO, TCSADRAIN, &ttyconfig);
-	restart_intrfds_poll(scpu->coreid, STDIN_POLL_IDX);
+	restart_intrfds_poll(PU32_SIM_CPU(scpu)->coreid, STDIN_POLL_IDX);
 }
 
 // Bitfield used to keep track of whether
@@ -465,7 +465,7 @@ void sim_engine_run (
 	int siggnal /* ignore */) {
 
 	sim_cpu *scpu = STATE_CPU(sd, coreid);
-	pu32state *scpustate = scpu->state;
+	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 	volatile uint32_t *scpustateregs = scpustate->regs;
 	pu32tlbentry *scpustateitlb = scpustate->itlb;
 	pu32tlbentry *scpustatedtlb = scpustate->dtlb;
@@ -542,7 +542,7 @@ void sim_engine_run (
 						__FUNCTION__, coreid);
 					sim_engine_halt (
 						sd, scpu, scpu,
-						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+						PU32_SIM_CPU(scpu)->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
 				haltedcore[coreid] = 0;
@@ -554,7 +554,7 @@ void sim_engine_run (
 						__FUNCTION__, coreid);
 					sim_engine_halt (
 						sd, scpu, scpu,
-						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+						PU32_SIM_CPU(scpu)->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
 
@@ -583,7 +583,7 @@ void sim_engine_run (
 						__FUNCTION__, coreid);
 					sim_engine_halt (
 						sd, scpu, scpu,
-						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+						PU32_SIM_CPU(scpu)->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
 
@@ -605,7 +605,7 @@ void sim_engine_run (
 						__FUNCTION__, coreid);
 					sim_engine_halt (
 						sd, scpu, scpu,
-						scpu->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
+						PU32_SIM_CPU(scpu)->state->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)],
 						sim_stopped, SIM_SIGABRT);
 				}
 
@@ -1880,7 +1880,7 @@ void sim_engine_run (
 											intrpending[intrdst][INTRCTRL_PENDING_IDX] = 1;
 
 											sim_cpu *scpu = STATE_CPU(sd, intrdst);
-											pu32state *scpustate = scpu->state;
+											pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 
 											if (haltedcore[intrdst]) {
 												while (write (haltsyncpipe[intrdst][1], &((char){0}), 1) == -1) {
@@ -2638,7 +2638,7 @@ void sim_engine_run (
 		if (coreid == 0 /* only core0 does this */ && sim_open_kind == SIM_OPEN_DEBUG) {
 			if (brkcoreid) {
 				sim_cpu *scpu = STATE_CPU(sd, brkcoreid);
-				pu32state *scpustate = scpu->state;
+				pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 				volatile uint32_t *scpustateregs = scpustate->regs;
 				unsigned curctxgproffset = (scpustate->curctx*PU32_GPRCNT);
 				sim_engine_halt (
@@ -2671,7 +2671,7 @@ int sim_read (
 		__FUNCTION__, x, len);
 	#endif
 	sim_cpu *scpu = STATE_CPU (sd, 0 /*coreid*/);
-	pu32state *scpustate = scpu->state;
+	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 	if (scpustate->curctx) {
 		uint32_t *scpustateregs = scpustate->regs;
 		// Translate as possible regardless of
@@ -2715,7 +2715,7 @@ int sim_write (
 		__FUNCTION__, x, len);
 	#endif
 	sim_cpu *scpu = STATE_CPU (sd, 0 /*coreid*/);
-	pu32state *scpustate = scpu->state;
+	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 	if (scpustate->curctx) {
 		uint32_t *scpustateregs = scpustate->regs;
 		// Translate as possible regardless of
@@ -2827,8 +2827,8 @@ SIM_DESC sim_open (
 	}
 
 	// The cpu data is kept in a separately allocated chunk of memory.
-	// sim_cpu_alloc_all() needs to be called before sim_pre_argv_init().
-	if (sim_cpu_alloc_all (sd, PU32_CPUCNT) != SIM_RC_OK) {
+	// sim_cpu_alloc_all_extra() needs to be called before sim_pre_argv_init().
+	if (sim_cpu_alloc_all_extra (sd, 0, sizeof(struct pu32_sim_cpu)) != SIM_RC_OK) {
 		free_state();
 		return 0;
 	}
@@ -3003,7 +3003,7 @@ SIM_DESC sim_open (
 
 			if ((unsigned int)regno < PU32_REGCNT) {
 
-				pu32state *scpustate = scpu->state;
+				pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 
 				regno += (scpustate->curctx*PU32_GPRCNT);
 
@@ -3042,7 +3042,7 @@ SIM_DESC sim_open (
 
 			if ((unsigned int)regno < PU32_REGCNT) {
 
-				pu32state *scpustate = scpu->state;
+				pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 
 				regno += (scpustate->curctx*PU32_GPRCNT);
 
@@ -3069,7 +3069,7 @@ SIM_DESC sim_open (
 
 		sim_cia pu32_pc_get (sim_cpu *scpu) {
 
-			pu32state *scpustate = scpu->state;
+			pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 
 			sim_cia pc = scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
 
@@ -3078,7 +3078,7 @@ SIM_DESC sim_open (
 
 		void pu32_pc_set (sim_cpu *scpu, sim_cia pc) {
 
-			pu32state *scpustate = scpu->state;
+			pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 
 			scpustate->regs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)] = pc;
 		}
@@ -3090,8 +3090,8 @@ SIM_DESC sim_open (
 		CPU_PC_FETCH(scpu) = pu32_pc_get;
 		CPU_PC_STORE(scpu) = pu32_pc_set;
 
-		scpu->coreid = i;
-		scpu->state = &states[i];
+		PU32_SIM_CPU(scpu)->coreid = i;
+		PU32_SIM_CPU(scpu)->state = &states[i];
 	}
 
 	for (unsigned long i = 0; i < corecnt; ++i) {
@@ -3295,7 +3295,7 @@ SIM_RC sim_create_inferior (
 		// I get here if all intrthread() and corethread() were already created.
 		// I halt non-zero cores.
 		for (unsigned i = 1; i < corecnt; ++i) {
-			pu32state *scpustate = STATE_CPU(sd, i)->state;
+			pu32state *scpustate = PU32_SIM_CPU(STATE_CPU(sd, i))->state;
 			while (!haltedcore[i]) {
 				scpustate->curctx = 1;
 				clraddrtranslcache[i]._ = -1;
@@ -3324,7 +3324,7 @@ SIM_RC sim_create_inferior (
 			corethreadid[0] = getpid(); // Get thread group ID.
 			continue;
 		}
-		pu32state *scpustate = STATE_CPU(sd, i)->state;
+		pu32state *scpustate = PU32_SIM_CPU(STATE_CPU(sd, i))->state;
 		scpustate->curctx = 1;
 		clraddrtranslcache[i]._ = -1;
 		scpustate->resettimer = 1;
@@ -3457,7 +3457,7 @@ SIM_RC sim_create_inferior (
 
 	st32at (tp, (j - 1));
 
-	pu32state *scpustate = STATE_CPU(sd, 0)->state;
+	pu32state *scpustate = PU32_SIM_CPU(STATE_CPU(sd, 0))->state;
 	scpustate->curctx = 0;
 	clraddrtranslcache[0]._ = -1;
 	scpustate->resettimer = 1;
@@ -3478,7 +3478,7 @@ SIM_RC sim_create_inferior (
 	}
 
 	for (unsigned i = 0; i < corecnt; ++i) {
-		pu32state *scpustate = STATE_CPU(sd, i)->state;
+		pu32state *scpustate = PU32_SIM_CPU(STATE_CPU(sd, i))->state;
 		scpustate->clkperiod = clkperiod;
 		scpustate->stime = stime;
 	}

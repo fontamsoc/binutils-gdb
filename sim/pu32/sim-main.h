@@ -12,6 +12,8 @@
 #define _stringify(x) #x
 #define stringify(x) _stringify(x)
 
+#define SIM_HAVE_COMMON_SIM_CPU
+
 #include "sim-basics.h"
 #include "sim-base.h"
 #include "bfd.h"
@@ -104,11 +106,12 @@ typedef struct {
 	struct timespec stime;
 } pu32state;
 
-struct _sim_cpu {
+struct pu32_sim_cpu {
 	unsigned coreid;
 	pu32state *state;
-	sim_cpu_base base;
 };
+
+#define PU32_SIM_CPU(cpu) ((struct pu32_sim_cpu *)CPU_ARCH_DATA(cpu))
 
 // RoundDown to power of two.
 #define ROUNDDOWNTOPOWEROFTWO(VALUE,POWEROFTWO) \
