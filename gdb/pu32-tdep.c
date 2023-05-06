@@ -145,7 +145,7 @@ static enum return_value_convention pu32_return_value (
 // Implement the "unwind_sp" gdbarch method.
 static CORE_ADDR pu32_unwind_sp (
 	struct gdbarch *gdbarch,
-	struct frame_info *next_frame) {
+	frame_info_ptr next_frame) {
 
 	#if defined(PU32_DEBUG)
 	debug_printf (
@@ -766,7 +766,7 @@ static int pu32_process_record (
 
 // Populate a pu32_frame_cache object for this_frame.
 static struct pu32_frame_cache *pu32_get_frame_cache (
-	struct frame_info *this_frame,
+	frame_info_ptr this_frame,
 	void **this_cache) {
 
 	#if defined(PU32_DEBUG)
@@ -846,7 +846,7 @@ static struct pu32_frame_cache *pu32_get_frame_cache (
 // Implement the "unwind_pc" gdbarch method.
 static CORE_ADDR pu32_unwind_pc (
 	struct gdbarch *gdbarch,
-	struct frame_info *next_frame) {
+	frame_info_ptr next_frame) {
 
 	#if defined(PU32_DEBUG)
 	debug_printf (
@@ -879,7 +879,7 @@ static void pu32_iterate_over_regset_sections (
 // Given a GDB frame, determine the address of the calling function's frame.
 // This will be used to create a new GDB frame struct.
 static void pu32_frame_this_id (
-	struct frame_info *this_frame,
+	frame_info_ptr this_frame,
 	void **this_prologue_cache,
 	struct frame_id *this_id) {
 
@@ -903,7 +903,7 @@ static void pu32_frame_this_id (
 
 // Get the value of register regnum in the caller function.
 static struct value *pu32_frame_prev_register (
-	struct frame_info *this_frame,
+	frame_info_ptr this_frame,
 	 void **this_prologue_cache,
 	 int regnum) {
 
@@ -1001,7 +1001,7 @@ static const struct frame_unwind pu32_frame_unwind = {
 
 // Return the frame-pointer value for this_frame.
 static CORE_ADDR pu32_frame_base_address (
-	struct frame_info *this_frame,
+	frame_info_ptr this_frame,
 	void **this_cache) {
 
 	#if defined(PU32_DEBUG)
@@ -1023,7 +1023,7 @@ static const struct frame_base pu32_frame_base = {
 
 static struct frame_id pu32_dummy_id (
 	struct gdbarch *gdbarch,
-	struct frame_info *this_frame) {
+	frame_info_ptr this_frame) {
 
 	#if defined(PU32_DEBUG)
 	debug_printf (
