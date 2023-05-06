@@ -2830,7 +2830,8 @@ SIM_DESC sim_open (
 
 	// The cpu data is kept in a separately allocated chunk of memory.
 	// sim_cpu_alloc_all_extra() needs to be called before sim_pre_argv_init().
-	if (sim_cpu_alloc_all_extra (sd, 0, sizeof(struct pu32_sim_cpu)) != SIM_RC_OK) {
+	// 883be197745 sim: cpu: change default init to handle all cpus.
+	if (sim_cpu_alloc_all_extra (sd, 0/*corecnt*/, sizeof(struct pu32_sim_cpu)) != SIM_RC_OK) {
 		free_state();
 		return 0;
 	}
