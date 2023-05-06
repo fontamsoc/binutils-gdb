@@ -1150,5 +1150,5 @@ _initialize_pu32_tdep ()
 		}
 	}
 
-	register_gdbarch_init (bfd_arch_pu32, pu32_gdbarch_init);
+	gdbarch_register (bfd_arch_pu32, pu32_gdbarch_init);
 }
