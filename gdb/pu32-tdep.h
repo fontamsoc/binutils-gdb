@@ -4,6 +4,12 @@
 #ifndef PU32_TDEP_H
 #define PU32_TDEP_H
 
+#include "gdbarch.h"
+
+struct pu32_gdbarch_tdep : gdbarch_tdep_base {
+	// gdbarch target dependent data here. Currently unused for PU32.
+};
+
 enum pu32_regnum {
 	PU32_SP_REGNUM = 0,
 	PU32_FP_REGNUM = 14,

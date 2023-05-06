@@ -1092,7 +1092,6 @@ static struct gdbarch *pu32_gdbarch_init (
 	#endif
 
 	struct gdbarch *gdbarch;
-	struct gdbarch_tdep *tdep;
 
 	// If there is already a candidate, use it.
 	arches = gdbarch_list_lookup_by_info (arches, &info);
@@ -1100,7 +1099,7 @@ static struct gdbarch *pu32_gdbarch_init (
 		return arches->gdbarch;
 
 	// Allocate space for the new architecture.
-	tdep = XCNEW (struct gdbarch_tdep);
+	pu32_gdbarch_tdep *tdep = new pu32_gdbarch_tdep;
 	gdbarch = gdbarch_alloc (&info, tdep);
 
 	// Hook in ABI-specific overrides, if they have been registered.
