@@ -1831,7 +1831,7 @@ void sim_engine_run (
 
 								// Do not allow closing stdin, stdout or stderr,
 								// otherwise GDB hang or STANDALONE cannot restore the tty.
-								if (fd <= PU32_RESERVED_FDS)
+								if (fd < PU32_RESERVED_FDS)
 									scpustateregs[1] = 0;
 								else
 									scpustateregs[1] = close (fd);

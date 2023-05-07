@@ -137,7 +137,8 @@ struct pu32_sim_cpu {
    3: dup()ed stdin.
    4: stdin (non-blocking).
    5: storage device (non-blocking).
-   6: network device (non-blocking). */
+   6: network device (non-blocking).
+   7: interrupt controller. */
 #define PU32_RESERVED_FDS 8 /* must match _initialize_pu32_tdep() */
 
 #define PU32_BIOS_FD_STDIN             4
