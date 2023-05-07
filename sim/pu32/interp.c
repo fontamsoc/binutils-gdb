@@ -2898,6 +2898,8 @@ SIM_DESC sim_open (
 				ttyconfig.c_lflag &= ~(ICANON | ECHO | ECHOE);
 			ttyconfig.c_cc[VMIN] = 1;
 			ttyconfig.c_cc[VTIME] = 0;
+			if (sim_open_kind == SIM_OPEN_STANDALONE)
+				tcsetattr(STDOUT_FILENO, TCSADRAIN, &ttyconfig);
 			void ttyrestore (void) {
 				tcsetattr(STDOUT_FILENO, TCSAFLUSH, &savedttyconfig);
 			}
