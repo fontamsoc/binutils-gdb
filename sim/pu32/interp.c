@@ -460,6 +460,10 @@ static volatile int brkcoreid;
 
 static unsigned long corecnt = 1;
 
+// Used to allow sim_read()/sim_write() to use the MMU during
+// debugging (ie: set breakpoints) even when not in userspace.
+static unsigned long pgd0en = 0;
+
 void sim_engine_run (
 	SIM_DESC _ /* ignore */,
 	int coreid,
@@ -2218,9 +2222,14 @@ void sim_engine_run (
 
 						unsigned gpr = (inst1 >> 4);
 
-						scpustateregs[PU32_REG_ASID] = scpustateregs[gpr+curctxgproffset];
+						uint32_t asid = scpustateregs[gpr+curctxgproffset];
+						scpustateregs[PU32_REG_ASID] = asid;
 
 						pgds[coreid] = scpustateregs[PU32_REG_SR+curctxgproffset];
+
+						if (coreid == 0 /* only core0 does this */ &&
+							sim_open_kind == SIM_OPEN_DEBUG)
+							pgd0en = (asid&((1<<12)-1));
 
 						scpustateregs[PU32_REG_PC+curctxgproffset] += 2;
 
@@ -2674,7 +2683,7 @@ uint64_t sim_read (
 	#endif
 	sim_cpu *scpu = STATE_CPU (sd, 0 /*coreid*/);
 	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
-	if (scpustate->curctx) {
+	if (pgd0en || scpustate->curctx) {
 		uint32_t *scpustateregs = scpustate->regs;
 		// Translate as possible regardless of
 		// whether in userspace or kernelspace.
@@ -2718,7 +2727,7 @@ uint64_t sim_write (
 	#endif
 	sim_cpu *scpu = STATE_CPU (sd, 0 /*coreid*/);
 	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
-	if (scpustate->curctx) {
+	if (pgd0en || scpustate->curctx) {
 		uint32_t *scpustateregs = scpustate->regs;
 		// Translate as possible regardless of
 		// whether in userspace or kernelspace.
