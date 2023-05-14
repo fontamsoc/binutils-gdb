@@ -12,7 +12,7 @@ INLINE void st8at (uint32_t x, uint8_t v) {
 	clraddrtranslcache[coreid].st8at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -76,7 +76,7 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 	clraddrtranslcache[coreid].st16at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -140,7 +140,7 @@ INLINE void st32at (uint32_t x, uint32_t v) {
 	clraddrtranslcache[coreid].st32at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -189,7 +189,7 @@ INLINE uint8_t ld8at (uint32_t x) {
 	clraddrtranslcache[coreid].ld8at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -252,7 +252,7 @@ INLINE uint16_t ld16at (uint32_t x) {
 	clraddrtranslcache[coreid].ld16at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -315,7 +315,7 @@ INLINE uint32_t ld32at (uint32_t x) {
 	clraddrtranslcache[coreid].ld32at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -365,7 +365,7 @@ INLINE uint8_t ldst8at (uint32_t x, uint8_t v) {
 	clraddrtranslcache[coreid].ldst8at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -444,7 +444,7 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 	clraddrtranslcache[coreid].ldst16at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -523,7 +523,7 @@ INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 	clraddrtranslcache[coreid].ldst32at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -588,7 +588,7 @@ INLINE uint8_t cldst8at (uint32_t x, uint8_t v, uint8_t ov) {
 	clraddrtranslcache[coreid].cldst8at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -667,7 +667,7 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 	clraddrtranslcache[coreid].cldst16at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -746,7 +746,7 @@ INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 	clraddrtranslcache[coreid].cldst32at = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
@@ -811,7 +811,7 @@ INLINE uint16_t ldinst (uint32_t x) {
 	clraddrtranslcache[coreid].ldinst = 0;
 	x_cached[coreid] = x_masked;
 	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID+(scpustate->curctx-1)];
+		uint32_t asid = scpustateregs[PU32_REG_ASID];
 		uint32_t in_userspace = (asid>>12);
 		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
