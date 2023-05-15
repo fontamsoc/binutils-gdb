@@ -2658,7 +2658,8 @@ void sim_engine_run (
 				brkcoreid = 0;
 			} else {
 				if (sim_events_tick(sd)) {
-					pu32_cpu_exception_suspend (sd, scpu, 0);
+					pu32_cpu_exception_suspend (sd, scpu,
+						((scpustate->skipintrhandling && scpustate->curctx) ? SIGTRAP : 0));
 					sim_events_process(sd);
 					pu32_cpu_exception_resume (sd, scpu, 0);
 				}
