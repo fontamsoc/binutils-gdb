@@ -2120,18 +2120,6 @@ void sim_engine_run (
 								break;
 							}
 
-							static uint32_t tls = 0;
-
-							case __NR_settls: {
-								tls = scpustateregs[1];
-								break;
-							}
-
-							case __NR_gettls: {
-								scpustateregs[1] = tls;
-								break;
-							}
-
 							default: {
 
 								sim_io_eprintf (sd,
