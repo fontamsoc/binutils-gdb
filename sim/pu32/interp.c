@@ -1623,13 +1623,13 @@ void sim_engine_run (
 
 						case 0x04:
 						case 0x05:
-							if (flags & PU32_FLAGS_cacherst)
+							if (flags & PU32_FLAGS_cachecmds)
 								return 0;
 							else
 								return 1;
 
 						case 0x3c:
-							if (flags & PU32_FLAGS_setasid)
+							if (flags & PU32_FLAGS_mmucmds)
 								return 0;
 							else
 								return 1;
@@ -1647,53 +1647,53 @@ void sim_engine_run (
 								return 1;
 
 						case 0x3a:
-							if (flags & PU32_FLAGS_settlb)
+							if (flags & PU32_FLAGS_mmucmds)
 								return 0;
 							else
 								return 1;
 
 						case 0x3b:
-							if (flags & PU32_FLAGS_clrtlb)
+							if (flags & PU32_FLAGS_mmucmds)
 								return 0;
 							else
 								return 1;
 
 						case 0x2c:
 						case 0x2d:
-							if (flags & PU32_FLAGS_getclkcyclecnt)
+							if (flags & PU32_FLAGS_clkinfo)
 								return 0;
 							else
 								return 1;
 
 						case 0x2e:
-							if (flags & PU32_FLAGS_gettlbsize)
+							if (flags & PU32_FLAGS_mmucmds)
 								return 0;
 							else
 								return 1;
 
 						case 0x2f:
 						case 0x12:
-							if (flags & PU32_FLAGS_getcachesize)
+							if (flags & PU32_FLAGS_cachecmds)
 								return 0;
 							else
 								return 1;
 
 						case 0x10:
-							if (flags & PU32_FLAGS_getcoreid)
+						case 0x14:
+						case 0x15:
+							if (flags & PU32_FLAGS_sysinfo)
 								return 0;
 							else
 								return 1;
 
 						case 0x11:
-						case 0x14:
-						case 0x15:
-							if (flags & PU32_FLAGS_getclkfreq)
+							if (flags & PU32_FLAGS_clkinfo)
 								return 0;
 							else
 								return 1;
 
 						case 0x13:
-							if (flags & PU32_FLAGS_gettlb)
+							if (flags & PU32_FLAGS_mmucmds)
 								return 0;
 							else
 								return 1;

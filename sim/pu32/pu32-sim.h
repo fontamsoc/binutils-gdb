@@ -27,22 +27,16 @@
 
 #define PU32_OP_NOTAVAIL 0x40
 
-#define PU32_FLAGS_setasid		0x1
-#define PU32_FLAGS_settimer		0x2
-#define PU32_FLAGS_settlb		0x4
-#define PU32_FLAGS_clrtlb		0x8
-#define PU32_FLAGS_getclkcyclecnt	0x10
-#define PU32_FLAGS_getclkfreq		0x20
-#define PU32_FLAGS_gettlbsize		0x40
-#define PU32_FLAGS_getcachesize		0x80
-#define PU32_FLAGS_getcoreid		0x100
-#define PU32_FLAGS_cacherst		0x200
-#define PU32_FLAGS_gettlb		0x400
-#define PU32_FLAGS_setflags		0x800
-#define PU32_FLAGS_disExtIntr		0x1000
-#define PU32_FLAGS_disTimerIntr		0x2000
-#define PU32_FLAGS_disPreemptIntr	0x4000
-#define PU32_FLAGS_halt			0x8000
+#define PU32_FLAGS_mmucmds        0x1
+#define PU32_FLAGS_settimer       0x2
+#define PU32_FLAGS_clkinfo        0x10
+#define PU32_FLAGS_sysinfo        0x20
+#define PU32_FLAGS_cachecmds      0x80
+#define PU32_FLAGS_setflags       0x800
+#define PU32_FLAGS_disExtIntr     0x1000
+#define PU32_FLAGS_disTimerIntr   0x2000
+#define PU32_FLAGS_disPreemptIntr 0x4000
+#define PU32_FLAGS_halt           0x8000
 
 #define PU32_CAP_mmu	0x1
 #define PU32_CAP_hptw	0x2
