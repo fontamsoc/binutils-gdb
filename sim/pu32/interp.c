@@ -49,18 +49,22 @@ static volatile SIM_DESC sd = 0;
 
 static void dumpregs (sim_cpu *scpu) {
 	SIM_DESC sd = CPU_STATE(scpu);
+	unsigned scpucoreid = PU32_SIM_CPU(scpu)->coreid;
 	pu32state *scpustate = PU32_SIM_CPU(scpu)->state;
 	uint32_t *regs = scpustate->regs;
 	unsigned long o = (scpustate->curctx*PU32_GPRCNT);
 	sim_io_eprintf(sd,
-		"pc(0x%x) rp(0x%x)\n",
-		regs[PU32_REG_PC+o], regs[15+o]);
+		"cpu%u pc(0x%x) rp(0x%x)\n",
+		scpucoreid, regs[PU32_REG_PC+o], regs[15+o]);
 	sim_io_eprintf(sd,
 		"sp(0x%x) r1(0x%x) r2(0x%x) r3(0x%x) r4(0x%x) r5(0x%x) r6(0x%x) r7(0x%x)\n",
 		regs[0+o], regs[1+o], regs[2+o], regs[3+o], regs[4+o], regs[5+o], regs[6+o], regs[7+o]);
 	sim_io_eprintf(sd,
 		"r8(0x%x) r9(0x%x) tp(0x%x) r11(0x%x) r12(0x%x) sr(0x%x) fp(0x%x)\n",
 		regs[8+o], regs[9+o], regs[10+o], regs[11+o], regs[12+o], regs[13+o], regs[14+o]);
+	sim_io_eprintf(sd,
+		"mode(%d) asid(0x%x) flags(0x%x)\n",
+		scpustate->curctx, regs[PU32_REG_ASID], regs[PU32_REG_FLAGS]);
 }
 
 // Copied from common/sim-core.c and modified.
