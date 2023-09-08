@@ -11,18 +11,20 @@ INLINE void st8at (uint32_t x, uint8_t v) {
 		return; }
 	clraddrtranslcache[coreid].st8at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.writable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -35,7 +37,18 @@ INLINE void st8at (uint32_t x, uint8_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: byte write to unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -75,18 +88,20 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 		return; }
 	clraddrtranslcache[coreid].st16at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.writable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -99,7 +114,18 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes write to unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -139,18 +165,20 @@ INLINE void st32at (uint32_t x, uint32_t v) {
 		return; }
 	clraddrtranslcache[coreid].st32at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.writable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -163,7 +191,18 @@ INLINE void st32at (uint32_t x, uint32_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes write to unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint32_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -188,18 +227,20 @@ INLINE uint8_t ld8at (uint32_t x) {
 		return *(uint8_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK));
 	clraddrtranslcache[coreid].ld8at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -212,7 +253,18 @@ INLINE uint8_t ld8at (uint32_t x) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: byte read from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -251,18 +303,20 @@ INLINE uint16_t ld16at (uint32_t x) {
 		return *(uint16_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK));
 	clraddrtranslcache[coreid].ld16at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -275,7 +329,18 @@ INLINE uint16_t ld16at (uint32_t x) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes read from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -314,18 +379,20 @@ INLINE uint32_t ld32at (uint32_t x) {
 		return *(uint32_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK));
 	clraddrtranslcache[coreid].ld32at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -338,7 +405,18 @@ INLINE uint32_t ld32at (uint32_t x) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes read from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint32_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -364,18 +442,20 @@ INLINE uint8_t ldst8at (uint32_t x, uint8_t v) {
 			(uint8_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK)), v);
 	clraddrtranslcache[coreid].ldst8at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -388,7 +468,18 @@ INLINE uint8_t ldst8at (uint32_t x, uint8_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: byte atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (!tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
@@ -403,7 +494,18 @@ INLINE uint8_t ldst8at (uint32_t x, uint8_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: byte atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -443,18 +545,20 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 			(uint16_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK)), v);
 	clraddrtranslcache[coreid].ldst16at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -467,7 +571,18 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (!tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
@@ -482,7 +597,18 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -522,18 +648,20 @@ INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 			(uint32_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK)), v);
 	clraddrtranslcache[coreid].ldst32at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -546,7 +674,18 @@ INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint32_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (!tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
@@ -561,7 +700,18 @@ INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint32_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -587,18 +737,20 @@ INLINE uint8_t cldst8at (uint32_t x, uint8_t v, uint8_t ov) {
 			(uint8_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK)), ov, v);
 	clraddrtranslcache[coreid].cldst8at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -611,7 +763,18 @@ INLINE uint8_t cldst8at (uint32_t x, uint8_t v, uint8_t ov) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: byte atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (!tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
@@ -626,7 +789,18 @@ INLINE uint8_t cldst8at (uint32_t x, uint8_t v, uint8_t ov) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: byte atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -666,18 +840,20 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 			(uint16_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK)), ov, v);
 	clraddrtranslcache[coreid].cldst16at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -690,7 +866,18 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (!tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
@@ -705,7 +892,18 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -745,18 +943,20 @@ INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 			(uint32_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK)), ov, v);
 	clraddrtranslcache[coreid].cldst32at = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustatedtlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.readable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.readable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -769,7 +969,18 @@ INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 				} else
 				#endif
 				{
-					dopfault (pu32ReadFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ReadFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint32_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (!tlbentry.writable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
@@ -784,7 +995,18 @@ INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 				} else
 				#endif
 				{
-					dopfault (pu32WriteFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32WriteFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: %u bytes atomic read-write from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint32_t), x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustatedtlb[tlbidx] = tlbentry;
@@ -810,18 +1032,20 @@ INLINE uint16_t ldinst (uint32_t x) {
 		return *(uint16_t *)(x_translated_cached[coreid] + (x & ~PAGE_MASK));
 	clraddrtranslcache[coreid].ldinst = 0;
 	x_cached[coreid] = x_masked;
-	if (scpustate->curctx) {
-		uint32_t asid = scpustateregs[PU32_REG_ASID];
-		uint32_t in_userspace = (asid>>12);
-		if (in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
+	uint32_t asid = scpustateregs[PU32_REG_ASID];
+	unsigned kmodepaging = ((asid>>13)&1);
+	if (scpustate->curctx || kmodepaging) {
+		unsigned in_userspace = ((asid>>12)&1);
+		unsigned _in_userspace = ((scpustate->curctx || !kmodepaging) && in_userspace);
+		if (_in_userspace || (x < PU32_KERNELSPACE_START || x >= scpustateregs[PU32_REG_KSL])) {
 			uint32_t vpn = (x >> PAGE_SHIFT);
 			unsigned tlbidx = (vpn & (PU32_TLBSZ - 1));
 			asid = (asid & ~PAGE_MASK);
 			unsigned retried = 0;
 			pu32tlbentry tlbentry = scpustateitlb[tlbidx];
 			retry:;
-			if ((in_userspace && !tlbentry.user) || tlbentry.asid != asid ||
-				tlbentry.vpn != vpn || !tlbentry.executable) {
+			if ((_in_userspace && !tlbentry.user) ||
+				tlbentry.asid != asid || tlbentry.vpn != vpn || !tlbentry.executable) {
 				#if (PU32_CAP & PU32_CAP_hptw)
 				if (!retried) {
 					uint32_t d2 = ((vpn << PAGE_SHIFT) | asid);
@@ -834,7 +1058,18 @@ INLINE uint16_t ldinst (uint32_t x) {
 				} else
 				#endif
 				{
-					dopfault (pu32ExecFaultIntr, x);
+					if (scpustate->curctx)
+						dopfault (pu32ExecFaultIntr, x);
+					else {
+						address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+						sim_io_eprintf (sd,
+							"pu32-sim: core%u: insn-exec from unmapped address 0x%x at 0x%x\n",
+							PU32_SIM_CPU(scpu)->coreid, x, ip);
+						dumpregs(scpu);
+						sim_engine_halt (
+							sd, scpu, scpu, ip,
+							sim_stopped, SIM_SIGBUS);
+					}
 				}
 			} else if (retried)
 				scpustateitlb[tlbidx] = tlbentry;
