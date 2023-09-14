@@ -67,14 +67,14 @@ INLINE void st8at (uint32_t x, uint8_t v) {
 // Write 2 bytes data to memory.
 INLINE void st16at (uint32_t x, uint16_t v) {
 	if (x&0b1) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes write to unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes write to unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (unsigned)sizeof(uint16_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -144,14 +144,14 @@ INLINE void st16at (uint32_t x, uint16_t v) {
 // Write 4 bytes data to memory.
 INLINE void st32at (uint32_t x, uint32_t v) {
 	if (x&0b11) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes write to unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes write to unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -283,14 +283,14 @@ INLINE uint8_t ld8at (uint32_t x) {
 // Read 2 bytes data from memory.
 INLINE uint16_t ld16at (uint32_t x) {
 	if (x&0b1) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes read from unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint16_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes read from unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint16_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -359,14 +359,14 @@ INLINE uint16_t ld16at (uint32_t x) {
 // Read 4 bytes data from memory.
 INLINE uint32_t ld32at (uint32_t x) {
 	if (x&0b11) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes read from unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes read from unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -524,14 +524,14 @@ INLINE uint8_t ldst8at (uint32_t x, uint8_t v) {
 // ReadWrite 2 bytes data to memory.
 INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 	if (x&0b1) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint16_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint16_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -627,14 +627,14 @@ INLINE uint16_t ldst16at (uint32_t x, uint16_t v) {
 // ReadWrite 4 bytes data to memory.
 INLINE uint32_t ldst32at (uint32_t x, uint32_t v) {
 	if (x&0b11) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -819,14 +819,14 @@ INLINE uint8_t cldst8at (uint32_t x, uint8_t v, uint8_t ov) {
 // Compare-ReadWrite 2 bytes data to memory.
 INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 	if (x&0b1) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint16_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint16_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);
@@ -922,14 +922,14 @@ INLINE uint16_t cldst16at (uint32_t x, uint16_t v, uint16_t ov) {
 // Compare-ReadWrite 4 bytes data to memory.
 INLINE uint32_t cldst32at (uint32_t x, uint32_t v, uint32_t ov) {
 	if (x&0b11) {
+		address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
+		sim_io_eprintf (sd,
+			"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
+			PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
+		dumpregs(scpu);
 		if (scpustate->curctx)
 			dopfault (pu32AlignFaultIntr, x);
 		else {
-			address_word ip = scpustateregs[PU32_REG_PC+(scpustate->curctx*PU32_GPRCNT)];
-			sim_io_eprintf (sd,
-				"pu32-sim: core%u: %u bytes atomic read-write from unaligned address 0x%x at 0x%x\n",
-				PU32_SIM_CPU(scpu)->coreid, (int)sizeof(uint32_t), x, ip);
-			dumpregs(scpu);
 			sim_engine_halt (
 				sd, scpu, scpu, ip,
 				sim_stopped, SIM_SIGBUS);

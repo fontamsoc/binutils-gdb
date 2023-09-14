@@ -1796,6 +1796,10 @@ void sim_engine_run (
 							case __NR_exit:
 							case __NR_exit_group: {
 
+								sim_io_eprintf (sd,
+									"pu32-sim: core%u: exit(%d)\n",
+									PU32_SIM_CPU(scpu)->coreid, scpustateregs[1]);
+
 								restart_intrfds_poll(coreid, -STDIN_POLL_IDX);
 
 								tcsetattr(STDOUT_FILENO, TCSAFLUSH, &savedttyconfig);
