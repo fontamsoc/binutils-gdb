@@ -60,7 +60,7 @@ void pu32_target::low_arch_setup () {
 
 	struct tdesc_feature *feature =
 		tdesc_create_feature (tdesc.get(), "org.gnu.gdb.pu32.core");
-	tdesc_create_reg (feature, "sp",  0,  1, NULL, 32, "uint32");
+	tdesc_create_reg (feature, "r0",  0,  1, NULL, 32, "uint32");
 	tdesc_create_reg (feature, "r1",  1,  1, NULL, 32, "uint32");
 	tdesc_create_reg (feature, "r2",  2,  1, NULL, 32, "uint32");
 	tdesc_create_reg (feature, "r3",  3,  1, NULL, 32, "uint32");
@@ -78,7 +78,7 @@ void pu32_target::low_arch_setup () {
 	tdesc_create_reg (feature, "r15", 15, 1, NULL, 32, "uint32");
 	tdesc_create_reg (feature, "pc",  16, 1, NULL, 32, "uint32");
 
-	static const char *expedite_regs[] = { "sp", "r14", "r15", "pc", NULL };
+	static const char *expedite_regs[] = { "r0", "r14", "r15", "pc", NULL };
 	init_target_desc (tdesc.get(), expedite_regs);
 
 	current_process()->tdesc = tdesc.release();
@@ -100,8 +100,7 @@ static gdb_byte pu32_linux_trap_s[TRAP_S_1_SIZE] =
 	{ (TRAP_S_1_OPCODE && 0xFF), (TRAP_S_1_OPCODE >> 8) };
 
 const gdb_byte *pu32_target::sw_breakpoint_from_kind (int kind, int *size) {
-	gdb_assert (kind == TRAP_S_1_SIZE);
-	*size = kind;
+	*size = TRAP_S_1_SIZE;
 	return pu32_linux_trap_s;
 }
 

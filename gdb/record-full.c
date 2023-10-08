@@ -1065,10 +1065,9 @@ record_full_target::resume (ptid_t ptid, int step, enum gdb_signal signal)
 
   if (!RECORD_FULL_IS_REPLAY)
     {
-      struct regcache *regcache = get_current_regcache ();
-      struct gdbarch *gdbarch = regcache->arch ();
+      struct gdbarch *gdbarch = target_thread_architecture (ptid);
 
-      record_full_message (regcache, signal);
+      record_full_message (get_current_regcache (), signal);
 
       if (!step)
 	{

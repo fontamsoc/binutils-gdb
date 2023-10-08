@@ -24,6 +24,7 @@
 #include "dis-asm.h"
 #include "record.h"
 #include "record-full.h"
+#include "target-descriptions.h"
 
 #include "pu32-tdep.h"
 #include <algorithm>
@@ -1091,7 +1092,28 @@ static struct gdbarch *pu32_gdbarch_init (
 		__FUNCTION__);
 	#endif
 
-	struct gdbarch *gdbarch;
+	tdesc_arch_data_up tdesc_data = NULL;
+	const struct target_desc *tdesc = info.target_desc;
+
+	if (tdesc_has_registers (tdesc)) {
+		// Check any target description for validity.
+
+		const struct tdesc_feature *feature =
+			tdesc_find_feature (tdesc, "org.gnu.gdb.pu32.core");
+		if (feature == NULL)
+			return NULL;
+
+		tdesc_data = tdesc_data_alloc ();
+
+		unsigned valid_p = 1;
+
+		for (unsigned i = 0; i < PU32_NUM_REGS; ++i)
+			valid_p &= tdesc_numbered_register (
+				feature, tdesc_data.get (), i, pu32_register_names[i]);
+
+		if (!valid_p)
+			return NULL;
+	}
 
 	// If there is already a candidate, use it.
 	arches = gdbarch_list_lookup_by_info (arches, &info);
@@ -1100,12 +1122,15 @@ static struct gdbarch *pu32_gdbarch_init (
 
 	// Allocate space for the new architecture.
 	pu32_gdbarch_tdep *tdep = new pu32_gdbarch_tdep;
-	gdbarch = gdbarch_alloc (&info, tdep);
+	struct gdbarch *gdbarch = gdbarch_alloc (&info, tdep);
 
 	// Hook in ABI-specific overrides, if they have been registered.
 	gdbarch_init_osabi (info, gdbarch);
 
 	pu32_gdbarch_config (gdbarch);
+
+	if (tdesc_data != NULL)
+		tdesc_use_registers (gdbarch, tdesc, std::move (tdesc_data));
 
 	return gdbarch;
 }
@@ -1118,8 +1143,6 @@ static void pu32_linux_init_osabi (struct gdbarch_info info, struct gdbarch *gdb
 	set_gdbarch_skip_trampoline_code (gdbarch, find_solib_trampoline_target);
 
 	set_solib_svr4_fetch_link_map_offsets (gdbarch, svr4_ilp32_fetch_link_map_offsets);
-
-	pu32_gdbarch_config (gdbarch);
 }
 
 void _initialize_pu32_tdep ();
