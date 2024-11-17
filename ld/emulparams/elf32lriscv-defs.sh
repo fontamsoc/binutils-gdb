@@ -8,6 +8,8 @@ EXTRA_EM_FILE=riscvelf
 
 ELFSIZE=32
 
+SYMBOL_ABI_ALIGNMENT=4
+
 if test `echo "$host" | sed -e s/64//` = `echo "$target" | sed -e s/64//`; then
   case " $EMULATION_LIBPATH " in
     *" ${EMULATION_NAME} "*)
@@ -19,6 +21,9 @@ fi
 # Enable shared library support for everything except an embedded elf target.
 case "$target" in
   riscv*-elf)
+    EMBEDDED=yes
+    HAVE_NOINIT=yes
+    HAVE_PERSISTENT=yes
     ;;
   *)
     GENERATE_SHLIB_SCRIPT=yes
@@ -27,7 +32,7 @@ case "$target" in
 esac
 
 IREL_IN_PLT=
-TEXT_START_ADDR=0x10000
+TEXT_START_ADDR=0x1000
 MAXPAGESIZE="CONSTANT (MAXPAGESIZE)"
 COMMONPAGESIZE="CONSTANT (COMMONPAGESIZE)"
 
@@ -38,6 +43,11 @@ SDATA_START_SYMBOLS="${CREATE_SHLIB-__SDATA_BEGIN__ = .;}
 
 INITIAL_READONLY_SECTIONS=".interp         : { *(.interp) } ${CREATE_PIE-${INITIAL_READONLY_SECTIONS}}"
 INITIAL_READONLY_SECTIONS="${RELOCATING+${CREATE_SHLIB-${INITIAL_READONLY_SECTIONS}}}"
+
+# __bss_end marks the end of .bss proper, before .noinit, so that a startup
+# file can clear .bss alone; __BSS_END__ below keeps covering .noinit for
+# the __global_pointer$ computation.
+OTHER_BSS_END_SYMBOLS="${CREATE_SHLIB-__bss_end = .;}"
 
 # We must cover as much of sdata as possible if it exists.  If sdata+bss is
 # smaller than 0x1000 then we should start from bss end to cover as much of

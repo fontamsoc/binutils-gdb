@@ -633,21 +633,10 @@ fi
 emit_text()
 {
 cat <<EOF
-  /* Start of the executable code region.  */
-  .init         ${RELOCATING-0}${RELOCATING+${INIT_ADDR}} :
-  {
-    ${RELOCATING+${INIT_START}}
-    KEEP (*(SORT_NONE(.init)))
-    ${RELOCATING+${INIT_END}}
-  } ${FILL}
-
-  ${TEXT_PLT+${PLT_NEXT_DATA-${PLT} ${OTHER_PLT_SECTIONS}}}
-  
-  ${TINY_READONLY_SECTION}
-  
   .text         ${RELOCATING-0} :
   {
     ${RELOCATING+${TEXT_START_SYMBOLS}}
+    ${RELOCATING+*(.text._start)}
     ${RELOCATING+*(.text.unlikely .text.*_unlikely .text.unlikely.*)}
     ${RELOCATING+*(.text.exit .text.exit.*)}
     ${RELOCATING+*(.text.startup .text.startup.*)}
@@ -658,7 +647,18 @@ cat <<EOF
     *(.gnu.warning)
     ${RELOCATING+${OTHER_TEXT_SECTIONS}}
   } ${FILL}
-  
+
+  .init         ${RELOCATING-0}${RELOCATING+${INIT_ADDR}} :
+  {
+    ${RELOCATING+${INIT_START}}
+    KEEP (*(SORT_NONE(.init)))
+    ${RELOCATING+${INIT_END}}
+  } ${FILL}
+
+  ${TEXT_PLT+${PLT_NEXT_DATA-${PLT} ${OTHER_PLT_SECTIONS}}}
+
+  ${TINY_READONLY_SECTION}
+
   .fini         ${RELOCATING-0}${RELOCATING+${FINI_ADDR}} :
   {
     ${RELOCATING+${FINI_START}}
@@ -802,10 +802,17 @@ cat <<EOF
   /* Thread Local Storage sections.  */
   .tdata	${RELOCATING-0} :
    {
+     KEEP (*(.tdata.__thread_cur))
      ${RELOCATING+${CREATE_SHLIB-PROVIDE_HIDDEN ($(def_symbol "__tdata_start"));}}
      *(.tdata${RELOCATING+ .tdata.* .gnu.linkonce.td.*})
+     ${RELOCATING+${CREATE_SHLIB-PROVIDE_HIDDEN ($(def_symbol "__tdata_end"));}}
    }
-  .tbss		${RELOCATING-0} : { *(.tbss${RELOCATING+ .tbss.* .gnu.linkonce.tb.*})${RELOCATING+ *(.tcommon)} }
+  .tbss		${RELOCATING-0} :
+   {
+     ${RELOCATING+${CREATE_SHLIB-PROVIDE_HIDDEN ($(def_symbol "__tbss_start"));}}
+     *(.tbss${RELOCATING+ .tbss.* .gnu.linkonce.tb.*})${RELOCATING+ *(.tcommon)}
+     ${RELOCATING+${CREATE_SHLIB-PROVIDE_HIDDEN ($(def_symbol "__tbss_end"));}}
+   }
 
   ${RELOCATING+$(emit_init_fini_arrays)}
 
