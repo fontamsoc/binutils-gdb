@@ -676,8 +676,8 @@ cat <<EOF
   /* Thread Local Storage sections  */
   .tdata	${RELOCATING-0} :
    {
+     KEEP (*(.tdata.__thread_cur))
      ${RELOCATING+${CREATE_SHLIB-PROVIDE_HIDDEN ($(def_symbol "__tdata_start"));}}
-     ${RELOCATING+*(.tdata.thread_cur)}
      *(.tdata${RELOCATING+ .tdata.* .gnu.linkonce.td.*})
      ${RELOCATING+${CREATE_SHLIB-PROVIDE_HIDDEN ($(def_symbol "__tdata_end"));}}
    }
