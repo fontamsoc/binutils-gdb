@@ -22,6 +22,8 @@ fi
 case "$target" in
   riscv*-elf)
     EMBEDDED=yes
+    HAVE_NOINIT=yes
+    HAVE_PERSISTENT=yes
     ;;
   *)
     GENERATE_SHLIB_SCRIPT=yes
